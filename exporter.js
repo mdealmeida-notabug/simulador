@@ -116,20 +116,14 @@ const exporter = {
         const compositeCanvas = this.generateCompositeCanvas(breadImg, logoImg, previewArea);
         const compositeData = compositeCanvas.toDataURL('image/jpeg', 0.8);
         
-        // Ajustar imagen de simulación al ancho de la hoja
-        let pdfWidth = doc.internal.pageSize.getWidth() - (margin * 2);
-        let pdfHeight = (compositeCanvas.height * pdfWidth) / compositeCanvas.width;
+        // El usuario requiere que la simulación ocupe el 50% del ancho de la página para estética
+        const maxWidth = doc.internal.pageSize.getWidth() - (margin * 2);
+        const pdfWidth = maxWidth * 0.5;
+        const pdfHeight = (compositeCanvas.height * pdfWidth) / compositeCanvas.width;
         
-        // Si es hielo, achicamos un 50% para estética
-        if (breadLabel.toLowerCase().includes("hielo")) {
-            pdfWidth *= 0.5;
-            pdfHeight *= 0.5;
-            // Centrar horizontalmente
-            const xOffset = (doc.internal.pageSize.getWidth() - pdfWidth) / 2;
-            doc.addImage(compositeData, 'JPEG', xOffset, y, pdfWidth, pdfHeight);
-        } else {
-            doc.addImage(compositeData, 'JPEG', margin, y, pdfWidth, pdfHeight);
-        }
+        // Centrar horizontalmente
+        const xOffset = (doc.internal.pageSize.getWidth() - pdfWidth) / 2;
+        doc.addImage(compositeData, 'JPEG', xOffset, y, pdfWidth, pdfHeight);
         
         y += pdfHeight + 20;
 

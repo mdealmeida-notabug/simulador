@@ -110,11 +110,12 @@ const exporter = {
         y += 55;
 
         // 2. Simulación Compuesta
-        doc.text("2. Simulación en el Pan:", margin, y);
+        const simLabel = breadLabel.toLowerCase().includes("hielo") ? "2. Simulación de logo sobre hielo:" : "2. Simulación en el Pan:";
+        doc.text(simLabel, margin, y);
         y += 5;
         
         const compositeCanvas = this.generateCompositeCanvas(breadImg, logoImg, previewArea);
-        const compositeData = compositeCanvas.toDataURL('image/jpeg', 0.8);
+        const compositeData = compositeCanvas.toDataURL('image/png');
         
         // El usuario requiere que la simulación ocupe el 50% del ancho de la página para estética
         const maxWidth = doc.internal.pageSize.getWidth() - (margin * 2);
@@ -123,7 +124,7 @@ const exporter = {
         
         // Centrar horizontalmente
         const xOffset = (doc.internal.pageSize.getWidth() - pdfWidth) / 2;
-        doc.addImage(compositeData, 'JPEG', xOffset, y, pdfWidth, pdfHeight);
+        doc.addImage(compositeData, 'PNG', xOffset, y, pdfWidth, pdfHeight);
         
         y += pdfHeight + 20;
 
@@ -135,7 +136,7 @@ const exporter = {
         // Versión del generador
         doc.setFontSize(8);
         doc.setTextColor(200, 200, 200);
-        doc.text("Generador PDF v2.1", doc.internal.pageSize.getWidth() - margin - 30, doc.internal.pageSize.getHeight() - 10);
+        doc.text("Generador PDF v2.2", doc.internal.pageSize.getWidth() - margin - 30, doc.internal.pageSize.getHeight() - 10);
 
         // Guardar
         doc.save(`Simulacion_NAB_Sellos_${Date.now()}.pdf`);

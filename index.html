@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Probá tu logo</title>
+    <link rel="icon" type="image/png" href="favicon.png">
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+
+    <div class="container">
+        <h1>Probá tu logo</h1>
+        <p class="subtitle">Simulá como va a quedar tu sello en distintos objetos.</p>
+        
+        <div class="form-group">
+            <p><strong>1. Subí tu diseño o elegí uno de nuestra galería:</strong></p>
+            <div class="logo-tabs">
+                <div class="tabs-header">
+                    <button class="tab-btn active" data-tab="upload-tab">Subir Archivo</button>
+                    <button class="tab-btn" data-tab="logos-tab">Galería</button>
+                </div>
+                
+                <div id="upload-tab" class="tab-content active">
+                    <div class="upload-container">
+                        <label for="logoInput" class="file-label">
+                            <i class="fas fa-upload"></i> Seleccionar Imagen
+                        </label>
+                        <input type="file" id="logoInput" accept="image/png, image/jpeg, image/svg+xml">
+                        <p class="file-hint">📎 Formatos recomendados: <strong>PNG</strong> o <strong>SVG</strong> con fondo transparente. Evitá JPG para mejores resultados.</p>
+                    </div>
+                </div>
+
+                <div id="logos-tab" class="tab-content">
+                    <div id="logoGrid" class="logo-grid">
+                        <!-- Miniaturas se cargarán aquí -->
+                        <div class="loading">Cargando logos...</div>
+                    </div>
+                </div>
+            </div>
+            <img id="logoThumbnail" src="" alt="Miniatura del logo subido" style="display: none;">
+            <button id="btnInvert" class="secondary-btn" style="display: none;">
+                <i class="fas fa-adjust"></i> Invertir Colores (Negativo)
+            </button>
+        </div>
+
+        <div class="form-group">
+            <p><strong>2. Elegí objeto a sellar:</strong></p>
+            <div class="radio-group">
+                <label>
+                    <input type="radio" name="breadType" value="hamburguesa" checked> Pan de Burger
+                </label>
+                <label>
+                    <input type="radio" name="breadType" value="ciabatta"> Pan Ciabatta
+                </label>
+                <label>
+                    <input type="radio" name="breadType" value="hielo"> Hielo de 5x5 centímetros
+                </label>
+            </div>
+        </div>
+
+        <div id="previewArea">
+            <!-- Pongo la imagen por defecto directo en el HTML para evitar que quede en blanco -->
+            <img id="breadImg" src="" alt="Producto">
+            <div id="logoPlaceholder">TU DISEÑO ACÁ</div>
+            <img id="logoImg" src="" alt="Logo Superpuesto">
+            
+            <!-- Círculos guía para el hielo -->
+            <div id="iceGuideContainer" style="display: none;">
+                <div id="iceCircle" class="guide-circle">
+                    <span id="iceCircleLabel"></span>
+                </div>
+            </div>
+        </div>
+
+        <div class="info-text">
+            <p id="breadMeasureText"></p>
+            <p id="iceMeasureText" style="display: none;">
+                Medida de bronce: <strong id="iceCmValue"></strong> <strong>mm</strong>
+            </p>
+            <p id="logoMeasureText" style="display: none;">
+                Medida del logo simulado: <br>
+                <strong id="logoCmValue">5.0</strong><strong> cm de ancho</strong> x 
+                <strong id="logoCmHeightValue">0.0</strong><strong> cm de alto</strong>
+            </p>
+        </div>
+
+        <div id="controlsContainer">
+            <div id="logoControls" style="display: none;">
+                <div class="control-group">
+                    <span>Tamaño Logo</span>
+                    <div class="btn-row">
+                        <button id="btnLogoMinus" class="ctrl-btn">-</button>
+                        <button id="btnLogoPlus" class="ctrl-btn">+</button>
+                    </div>
+                </div>
+                <div class="control-group">
+                    <span>Rotación</span>
+                    <div class="btn-row">
+                        <button id="btnRotateLeft" class="ctrl-btn" title="Rotar Izquierda -30°">
+                            <i class="fas fa-undo"></i>
+                        </button>
+                        <button id="btnRotateRight" class="ctrl-btn" title="Rotar Derecha +30°">
+                            <i class="fas fa-redo"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <div id="breadControls" class="control-group">
+                <span>Tamaño Objeto</span>
+                <div class="btn-row">
+                    <button id="btnBreadMinus" class="ctrl-btn">-</button>
+                    <button id="btnBreadPlus" class="ctrl-btn">+</button>
+                </div>
+            </div>
+
+            <button id="btnDownloadPDF" class="download-btn">Descargar PDF de Simulación</button>
+            <a href="https://wa.me/5491135654750" target="_blank" class="whatsapp-btn download-btn" id="whatsappBtn">
+                <i class="fas fa-whatsapp"></i> Envianos un WhatsApp
+            </a>
+        </div>
+    </div>
+
+    <footer>
+        <div class="footer-container">
+            <h3>NAB Sellos Metálicos</h3>
+            <ul>
+                <li><strong>Instagram:</strong> <a href="https://www.instagram.com/nabsellosmetalicos" target="_blank">@nabsellosmetalicos</a></li>
+                <li><strong>Web:</strong> <a href="https://nabsellosmetalicos.ar" target="_blank">nabsellosmetalicos.ar</a></li>
+                <li><strong>WhatsApp:</strong> +54 9 11 3565-4750</li>
+            </ul>
+            <a href="https://wa.me/5491135654750" target="_blank" class="footer-whatsapp-link">
+                Envianos un WhatsApp
+            </a>
+        </div>
+    </footer>
+
+    <!-- Scripts -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="config.js"></script>
+    <script src="logos_list.js"></script>
+    <script src="logoFetcher.js"></script>
+    <script src="processor.js"></script>
+    <script src="simulator.js"></script>
+    <script src="exporter.js"></script>
+    <script src="app.js"></script>
+</body>
+</html>

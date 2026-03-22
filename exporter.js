@@ -131,6 +131,11 @@ const exporter = {
         doc.setFontSize(10);
         doc.setTextColor(150, 150, 150);
         doc.text("Generado por NAB Sellos Metálicos - nabsellosmetalicos.ar", margin, doc.internal.pageSize.getHeight() - 10);
+        
+        // Versión del generador
+        doc.setFontSize(8);
+        doc.setTextColor(200, 200, 200);
+        doc.text("Generador PDF v2.1", doc.internal.pageSize.getWidth() - margin - 30, doc.internal.pageSize.getHeight() - 10);
 
         // Guardar
         doc.save(`Simulacion_NAB_Sellos_${Date.now()}.pdf`);

@@ -15,7 +15,11 @@ const exporter = {
         canvas.width = breadImg.naturalWidth;
         canvas.height = breadImg.naturalHeight;
 
-        // 1. Dibujar el pan
+        // 1. Fondo blanco (Para evitar esquinas negras al exportar a JPEG)
+        ctx.fillStyle = 'white';
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+        // 2. Dibujar el pan
         ctx.drawImage(breadImg, 0, 0, canvas.width, canvas.height);
 
         // 2. Calcular posición y tamaño del logo

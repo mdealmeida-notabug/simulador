@@ -62,27 +62,20 @@ const exporter = {
      * Dibuja un pequeño pan artesanal minimalista usando primitivas de jsPDF.
      */
     drawArtisanBread(doc, x, y, size, rotation = 0) {
-        doc.save();
-        doc.setDrawColor(255, 102, 0); // Usamos naranja NAB para coherencia
+        doc.setDrawColor(255, 102, 0); // Naranja NAB
         doc.setLineWidth(0.3);
-        
-        // Trasladar y rotar
-        // doc.rotate no existe tal cual en jsPDF estándar sin plugins, 
-        // pero podemos simularlo con la posición de los puntos.
         
         // Cuerpo: Elipse simplificada con líneas
         const w = size;
         const h = size * 0.6;
         
-        // Dibujamos un óvalo "hecho a mano"
+        // Dibujamos un óvalo
         doc.ellipse(x, y, w, h, 'S');
         
         // Cortes del pan (3 líneas curvas)
         doc.line(x - w*0.4, y - h*0.2, x - w*0.1, y + h*0.4);
         doc.line(x - w*0.1, y - h*0.4, x + w*0.2, y + h*0.2);
         doc.line(x + w*0.2, y - h*0.2, x + w*0.5, y + h*0.4);
-        
-        doc.restore();
     },
 
     /**

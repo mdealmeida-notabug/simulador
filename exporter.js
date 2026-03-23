@@ -59,27 +59,20 @@ const exporter = {
     },
 
     /**
-     * Dibuja un pequeño pan artesanal minimalista usando primitivas de jsPDF.
+     * Dibuja una pequeña miniatura de pan/hielo usando una imagen real.
      */
-    drawArtisanBread(doc, x, y, size, rotation = 0) {
-        doc.setDrawColor(255, 102, 0); // Naranja NAB
-        doc.setLineWidth(0.3);
-        
-        // Cuerpo: Elipse simplificada con líneas
-        const w = size;
-        const h = size * 0.6;
-        
-        // Dibujamos un óvalo
-        doc.ellipse(x, y, w, h, 'S');
-        
-        // Cortes del pan (3 líneas curvas)
-        doc.line(x - w*0.4, y - h*0.2, x - w*0.1, y + h*0.4);
-        doc.line(x - w*0.1, y - h*0.4, x + w*0.2, y + h*0.2);
-        doc.line(x + w*0.2, y - h*0.2, x + w*0.5, y + h*0.4);
+    async drawBreadPhoto(doc, src, x, y, size) {
+        try {
+            // Calculamos un alto proporcional simple (asumiendo ~1:1 o similar para miniaturas)
+            const imgHeight = size; 
+            doc.addImage(src, 'PNG', x - size/2, y - imgHeight/2, size, imgHeight);
+        } catch (e) {
+            console.warn("No se pudo cargar la miniatura para el PDF", e);
+        }
     },
 
     /**
-     * Genera y descarga el PDF con toques artísticos orgánicos.
+     * Genera y descarga el PDF con fotos reales para decoración.
      */
     async downloadPDF(logoThumbnail, breadImg, logoImg, previewArea, breadLabel, width, height, bronzeSize) {
         const { jsPDF } = window.jspdf;
@@ -89,11 +82,12 @@ const exporter = {
         const pageHeight = doc.internal.pageSize.getHeight();
         let y = 15;
 
-        // --- DECORACIÓN: "PANCITOS DESORDENADOS" EN EL ENCABEZADO ---
-        this.drawArtisanBread(doc, 15, 10, 6);
-        this.drawArtisanBread(doc, 25, 8, 4);
-        this.drawArtisanBread(doc, pageWidth - 20, 12, 5);
-        this.drawArtisanBread(doc, pageWidth - 35, 9, 4);
+        // --- DECORACIÓN: "FOTITOS DE PANES" EN EL ENCABEZADO ---
+        // Usamos las imágenes reales definidas en el proyecto
+        await this.drawBreadPhoto(doc, 'hamburguesa.png', 15, 10, 8);
+        await this.drawBreadPhoto(doc, 'ciabatta.png', 28, 10, 10);
+        await this.drawBreadPhoto(doc, 'hielo.png', pageWidth - 20, 10, 7);
+        await this.drawBreadPhoto(doc, 'hamburguesa.png', pageWidth - 35, 10, 6);
 
         doc.setDrawColor(255, 102, 0);
         doc.setLineWidth(0.8);
@@ -176,8 +170,8 @@ const exporter = {
         doc.setLineWidth(0.3);
         doc.line(margin, pageHeight - 25, pageWidth - margin, pageHeight - 25);
         
-        // Pequeño pan al pie
-        this.drawArtisanBread(doc, pageWidth - margin - 10, pageHeight - 15, 4);
+        // Pequeña foto al pie
+        await this.drawBreadPhoto(doc, 'hamburguesa.png', pageWidth - margin - 10, pageHeight - 15, 6);
 
         doc.setFontSize(9);
         doc.setTextColor(150, 150, 150);

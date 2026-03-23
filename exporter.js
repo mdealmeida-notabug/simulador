@@ -59,20 +59,37 @@ const exporter = {
     },
 
     /**
-     * Dibuja una pequeña miniatura de pan/hielo usando una imagen real.
+     * Dibuja una línea de miniaturas (punteada) usando una imagen.
      */
-    async drawBreadPhoto(doc, src, x, y, size) {
-        try {
-            // Calculamos un alto proporcional simple (asumiendo ~1:1 o similar para miniaturas)
-            const imgHeight = size; 
-            doc.addImage(src, 'PNG', x - size/2, y - imgHeight/2, size, imgHeight);
-        } catch (e) {
-            console.warn("No se pudo cargar la miniatura para el PDF", e);
-        }
+    async drawBreadLine(doc, src, y, size, spacing = 2) {
+        const pageWidth = doc.internal.pageSize.getWidth();
+        const margin = 10; // Margen menor para que la línea sea más larga
+        const startX = margin;
+        const endX = pageWidth - margin;
+        
+        // Cargar imagen una vez para obtener proporciones
+        return new Promise((resolve) => {
+            const img = new Image();
+            img.onload = () => {
+                const imgHeight = (img.height * size) / img.width;
+                let currentX = startX;
+                
+                while (currentX + size <= endX) {
+                    doc.addImage(img, 'PNG', currentX, y - imgHeight/2, size, imgHeight);
+                    currentX += size + spacing;
+                }
+                resolve();
+            };
+            img.onerror = () => {
+                console.warn("No se pudo cargar la imagen para la línea:", src);
+                resolve();
+            };
+            img.src = src;
+        });
     },
 
     /**
-     * Genera y descarga el PDF con fotos reales para decoración.
+     * Genera y descarga el PDF con una estética de "punto de panes".
      */
     async downloadPDF(logoThumbnail, breadImg, logoImg, previewArea, breadLabel, width, height, bronzeSize) {
         const { jsPDF } = window.jspdf;
@@ -82,12 +99,8 @@ const exporter = {
         const pageHeight = doc.internal.pageSize.getHeight();
         let y = 15;
 
-        // --- DECORACIÓN: "FOTITOS DE PANES" EN EL ENCABEZADO ---
-        // Usamos las imágenes reales definidas en el proyecto
-        await this.drawBreadPhoto(doc, 'hamburguesa.png', 15, 10, 8);
-        await this.drawBreadPhoto(doc, 'ciabatta.png', 28, 10, 10);
-        await this.drawBreadPhoto(doc, 'hielo.png', pageWidth - 20, 10, 7);
-        await this.drawBreadPhoto(doc, 'hamburguesa.png', pageWidth - 35, 10, 6);
+        // --- DECORACIÓN: LÍNEA PUNTEADA DE PANES EN EL ENCABEZADO ---
+        await this.drawBreadLine(doc, 'hamburguesa.png', 10, 5, 2);
 
         doc.setDrawColor(255, 102, 0);
         doc.setLineWidth(0.8);
@@ -170,8 +183,8 @@ const exporter = {
         doc.setLineWidth(0.3);
         doc.line(margin, pageHeight - 25, pageWidth - margin, pageHeight - 25);
         
-        // Pequeña foto al pie
-        await this.drawBreadPhoto(doc, 'hamburguesa.png', pageWidth - margin - 10, pageHeight - 15, 6);
+        // Línea punteada de panes al pie
+        await this.drawBreadLine(doc, 'hamburguesa.png', pageHeight - 15, 4, 1.5);
 
         doc.setFontSize(9);
         doc.setTextColor(150, 150, 150);
@@ -179,7 +192,7 @@ const exporter = {
         doc.text("nabsellosmetalicos.ar | Expertos en gastronomía", margin, pageHeight - 10);
         
         doc.setFontSize(8);
-        doc.text("Generador PDF v2.4 (Artisan Edition)", pageWidth - margin - 45, pageHeight - 8);
+        doc.text("Generador PDF v2.5 (Photo Edition)", pageWidth - margin - 45, pageHeight - 8);
 
         // Guardar
         doc.save(`Simulacion_NAB_Sellos_${Date.now()}.pdf`);

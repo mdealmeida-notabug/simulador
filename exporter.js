@@ -59,84 +59,117 @@ const exporter = {
     },
 
     /**
-     * Genera y descarga el PDF.
+     * Genera y descarga el PDF con toques artísticos.
      */
     async downloadPDF(logoThumbnail, breadImg, logoImg, previewArea, breadLabel, width, height, bronzeSize) {
         const { jsPDF } = window.jspdf;
         const doc = new jsPDF();
         const margin = 20;
-        let y = 20;
+        const pageWidth = doc.internal.pageSize.getWidth();
+        const pageHeight = doc.internal.pageSize.getHeight();
+        let y = 15;
 
+        // --- DECORACIÓN ARTÍSTICA: HEADER ---
+        doc.setFillColor(255, 102, 0); // Naranja NAB
+        doc.rect(0, 0, pageWidth, 5, 'F'); // Barra superior
+
+        // Pequeño ícono de "Sello/Utensilio" minimalista (vía código)
+        doc.setDrawColor(255, 102, 0);
+        doc.setLineWidth(0.5);
+        // Dibujo de una espátula simple a la izquierda
+        doc.line(margin, 12, margin + 5, 12); // Mango
+        doc.rect(margin + 5, 10, 4, 4); // Hoja
+
+        y = 22;
         const dateStr = new Date().toLocaleDateString('es-ES', { 
             year: 'numeric', 
             month: 'long', 
             day: 'numeric' 
         });
 
-        // Título
+        // Título principal
         doc.setFontSize(22);
-        doc.setTextColor(255, 102, 0); // Naranja NAB
-        doc.text("Reporte de Simulación - NAB Sellos", margin, y);
-        y += 15;
+        doc.setTextColor(255, 102, 0);
+        doc.text("Reporte de Simulación", margin + 12, y);
+        doc.setFontSize(10);
+        doc.setTextColor(100, 100, 100);
+        doc.text("NAB SELLOS METÁLICOS", margin + 12, y + 5);
+        
+        y += 20;
 
-        // Datos técnicos
-        doc.setFontSize(12);
+        // --- DATOS TÉCNICOS ---
+        doc.setDrawColor(200, 200, 200);
+        doc.setLineDash([1, 1]); // Línea punteada "guía"
+        doc.line(margin, y - 5, pageWidth - margin, y - 5);
+        doc.setLineDash([]); // Reset
+
+        doc.setFontSize(11);
         doc.setTextColor(50, 50, 50);
         doc.text(`Fecha: ${dateStr}`, margin, y);
         y += 7;
         doc.text(`Objeto: ${breadLabel}`, margin, y);
         y += 7;
-        doc.text(`Medida del Logo: ${width} cm de ancho x ${height} cm de alto`, margin, y);
+        doc.text(`Medida del Logo: ${width} cm x ${height} cm`, margin, y);
         
         if (bronzeSize && !isNaN(bronzeSize) && breadLabel.toLowerCase().includes("hielo")) {
             y += 7;
             doc.setFont("helvetica", "bold");
+            doc.setTextColor(255, 102, 0);
             doc.text(`Medida del Bronce sugerida: ${bronzeSize} mm`, margin, y);
             doc.setFont("helvetica", "normal");
+            doc.setTextColor(50, 50, 50);
         }
         
         y += 15;
 
-        // 1. Logo Original
+        // --- 1. LOGO ORIGINAL ---
         doc.setFontSize(14);
-        doc.text("1. Logo Original:", margin, y);
-        y += 5;
+        doc.setTextColor(255, 102, 0);
+        doc.text("1. Diseño procesado:", margin, y);
+        y += 7;
         try {
-            // El thumbnail es el base64 del logo procesado (ya viene con el color de sello)
-            doc.addImage(logoThumbnail.src, 'PNG', margin, y, 40, 40);
+            doc.addImage(logoThumbnail.src, 'PNG', margin, y, 35, 35);
         } catch (e) {
-            doc.text("[Error cargando imagen original]", margin, y + 10);
+            doc.text("[Error cargando imagen]", margin, y + 10);
         }
-        y += 55;
+        y += 50;
 
-        // 2. Simulación Compuesta
+        // --- 2. SIMULACIÓN COMPUESTA ---
         const simLabel = breadLabel.toLowerCase().includes("hielo") ? "2. Simulación de logo sobre hielo:" : "2. Simulación en el Pan:";
+        doc.setFontSize(14);
+        doc.setTextColor(255, 102, 0);
         doc.text(simLabel, margin, y);
-        y += 5;
+        y += 7;
         
         const compositeCanvas = this.generateCompositeCanvas(breadImg, logoImg, previewArea);
         const compositeData = compositeCanvas.toDataURL('image/png');
         
-        // El usuario requiere que la simulación ocupe el 50% del ancho de la página para estética
-        const maxWidth = doc.internal.pageSize.getWidth() - (margin * 2);
-        const pdfWidth = maxWidth * 0.5;
+        const pdfWidth = (pageWidth - (margin * 2)) * 0.5;
         const pdfHeight = (compositeCanvas.height * pdfWidth) / compositeCanvas.width;
+        const xOffset = (pageWidth - pdfWidth) / 2;
         
-        // Centrar horizontalmente
-        const xOffset = (doc.internal.pageSize.getWidth() - pdfWidth) / 2;
+        // Sombra/Borde sutil para la imagen
+        doc.setDrawColor(230, 230, 230);
+        doc.setLineDash([]);
+        doc.rect(xOffset - 1, y - 1, pdfWidth + 2, pdfHeight + 2);
+        
         doc.addImage(compositeData, 'PNG', xOffset, y, pdfWidth, pdfHeight);
         
-        y += pdfHeight + 20;
+        y += pdfHeight + 25;
 
-        // Footer del PDF
-        doc.setFontSize(10);
+        // --- FOOTER ARTÍSTICO ---
+        doc.setDrawColor(200, 200, 200);
+        doc.line(margin, pageHeight - 20, pageWidth - margin, pageHeight - 20);
+        
+        doc.setFontSize(9);
         doc.setTextColor(150, 150, 150);
-        doc.text("Generado por NAB Sellos Metálicos - nabsellosmetalicos.ar", margin, doc.internal.pageSize.getHeight() - 10);
+        doc.text("NAB Sellos Metálicos - nabsellosmetalicos.ar", margin, pageHeight - 12);
+        doc.text("Expertos en marcación industrial y gastronómica", margin, pageHeight - 8);
         
         // Versión del generador
         doc.setFontSize(8);
         doc.setTextColor(200, 200, 200);
-        doc.text("Generador PDF v2.2", doc.internal.pageSize.getWidth() - margin - 30, doc.internal.pageSize.getHeight() - 10);
+        doc.text("Generador PDF v2.3", pageWidth - margin - 30, pageHeight - 12);
 
         // Guardar
         doc.save(`Simulacion_NAB_Sellos_${Date.now()}.pdf`);

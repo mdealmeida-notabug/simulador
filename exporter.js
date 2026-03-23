@@ -60,23 +60,30 @@ const exporter = {
 
     /**
      * Dibuja una línea de miniaturas (punteada) usando una imagen.
+     * align: 'left' recorre todo el ancho, 'right' coloca maxItems a la derecha.
      */
-    async drawBreadLine(doc, src, y, size, spacing = 2) {
+    async drawBreadLine(doc, src, y, size, spacing = 2, sideMargin = 20, maxItems = 99, align = 'left') {
         const pageWidth = doc.internal.pageSize.getWidth();
-        const margin = 10; // Margen menor para que la línea sea más larga
-        const startX = margin;
-        const endX = pageWidth - margin;
+        const startX = sideMargin;
+        const endX = pageWidth - sideMargin;
         
-        // Cargar imagen una vez para obtener proporciones
         return new Promise((resolve) => {
             const img = new Image();
             img.onload = () => {
                 const imgHeight = (img.height * size) / img.width;
                 let currentX = startX;
+                let count = 0;
+
+                if (align === 'right') {
+                    // Calculamos el inicio para que los N items terminen en endX
+                    const totalWidth = (maxItems * size) + ((maxItems - 1) * spacing);
+                    currentX = endX - totalWidth;
+                }
                 
-                while (currentX + size <= endX) {
+                while (currentX + size <= endX + 0.1 && count < maxItems) {
                     doc.addImage(img, 'PNG', currentX, y - imgHeight/2, size, imgHeight);
                     currentX += size + spacing;
+                    count++;
                 }
                 resolve();
             };
@@ -100,7 +107,7 @@ const exporter = {
         let y = 15;
 
         // --- DECORACIÓN: LÍNEA PUNTEADA DE PANES EN EL ENCABEZADO ---
-        await this.drawBreadLine(doc, 'hamburguesa.png', 10, 5, 2);
+        await this.drawBreadLine(doc, 'hamburguesa.png', 10, 5, 2, 20);
 
         doc.setDrawColor(255, 102, 0);
         doc.setLineWidth(0.8);
@@ -183,8 +190,8 @@ const exporter = {
         doc.setLineWidth(0.3);
         doc.line(margin, pageHeight - 25, pageWidth - margin, pageHeight - 25);
         
-        // Línea punteada de panes al pie
-        await this.drawBreadLine(doc, 'hamburguesa.png', pageHeight - 15, 4, 1.5);
+        // Línea punteada de panes al pie (Solo 5 a la derecha para no tapar el texto)
+        await this.drawBreadLine(doc, 'hamburguesa.png', pageHeight - 15, 4, 1.5, 20, 5, 'right');
 
         doc.setFontSize(9);
         doc.setTextColor(150, 150, 150);

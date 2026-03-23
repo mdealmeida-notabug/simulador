@@ -454,42 +454,97 @@ footer {
     background-color: #0056b3;
 }
 
-/* --- LOADING OVERLAY --- */
+/* --- LOADING OVERLAY (ATOMIC STYLE) --- */
 #loadingOverlay {
     position: fixed;
     top: 0;
     left: 0;
-    width: 100%;
-    height: 100%;
-    background: rgba(0, 0, 0, 0.85);
-    display: none; /* Se muestra con JS */
+    width: 100vw;
+    height: 100vh;
+    background: rgba(0, 0, 0, 0.9);
+    display: none;
     flex-direction: column;
     justify-content: center;
     align-items: center;
     z-index: 10000;
-    backdrop-filter: blur(8px);
+    backdrop-filter: blur(10px);
+    overflow: hidden;
 }
 
-.spinning-bread {
-    width: 120px;
-    height: 120px;
-    margin-bottom: 24px;
-    animation: spin 1.5s linear infinite;
-    filter: drop-shadow(0 0 15px rgba(255, 102, 0, 0.6));
+.atom-container {
+    position: relative;
+    width: 300px;
+    height: 300px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    perspective: 1000px;
+    margin-bottom: 40px;
 }
+
+.nucleus {
+    width: 100px;
+    height: 100px;
+    z-index: 10;
+    filter: drop-shadow(0 0 20px rgba(255, 102, 0, 0.4));
+    animation: nucleus-pulse 2s ease-in-out infinite;
+}
+
+.orbit {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    border: 1px solid rgba(255, 102, 0, 0.15);
+    transform-style: preserve-3d;
+}
+
+.orbit-1 { transform: rotateX(75deg) rotateY(10deg); }
+.orbit-2 { transform: rotateX(75deg) rotateY(130deg); }
+.orbit-3 { transform: rotateX(75deg) rotateY(250deg); }
+
+.electron {
+    width: 45px;
+    height: 45px;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    filter: drop-shadow(0 0 10px rgba(255, 102, 0, 0.3));
+}
+
+.orbit-1 .electron { animation: orbit1 3s linear infinite; }
+.orbit-2 .electron { animation: orbit2 2.5s linear infinite; }
+.orbit-3 .electron { animation: orbit3 3.5s linear infinite; }
 
 #loadingOverlay p {
     color: white;
-    font-size: 1.2rem;
+    font-size: 1.4rem;
     font-weight: bold;
     text-transform: uppercase;
-    letter-spacing: 3px;
+    letter-spacing: 4px;
     margin: 0;
     text-align: center;
     font-family: inherit;
+    text-shadow: 0 0 10px rgba(255, 102, 0, 0.5);
 }
 
-@keyframes spin {
-    from { transform: rotate(0deg); }
-    to { transform: rotate(360deg); }
+/* Animations */
+@keyframes nucleus-pulse {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.05); }
+}
+
+@keyframes orbit1 {
+    from { transform: translate(-50%, -50%) rotate(0deg) translateX(150px) rotateZ(0deg) rotateX(-75deg); }
+    to { transform: translate(-50%, -50%) rotate(360deg) translateX(150px) rotateZ(-360deg) rotateX(-75deg); }
+}
+
+@keyframes orbit2 {
+    from { transform: translate(-50%, -50%) rotate(0deg) translateX(150px) rotateZ(0deg) rotateX(-75deg); }
+    to { transform: translate(-50%, -50%) rotate(360deg) translateX(150px) rotateZ(-360deg) rotateX(-75deg); }
+}
+
+@keyframes orbit3 {
+    from { transform: translate(-50%, -50%) rotate(0deg) translateX(150px) rotateZ(0deg) rotateX(-75deg); }
+    to { transform: translate(-50%, -50%) rotate(360deg) translateX(150px) rotateZ(-360deg) rotateX(-75deg); }
 }

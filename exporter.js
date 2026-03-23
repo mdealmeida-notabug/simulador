@@ -153,8 +153,11 @@ const exporter = {
         const pageHeight = doc.internal.pageSize.getHeight();
         let y = 15;
 
-        // --- DECORACIÓN: LÍNEA PUNTEADA DE PANES EN EL ENCABEZADO ---
-        await this.drawBreadLine(doc, 'hamburguesa.png', 10, 5, 2, 20);
+        // --- DECORACIÓN: LÍNEA PUNTEADA (HIELOS O PANES) EN EL ENCABEZADO ---
+        const decorationImg = breadLabel.toLowerCase().includes("hielo") ? 'hielo.png' : 'hamburguesa.png';
+        const decorationSize = breadLabel.toLowerCase().includes("hielo") ? 6 : 5; // Hielo se ve mejor un poquito más grande
+        
+        await this.drawBreadLine(doc, decorationImg, 10, decorationSize, 2, 20);
 
         doc.setDrawColor(255, 102, 0);
         doc.setLineWidth(0.8);
@@ -255,8 +258,9 @@ const exporter = {
         doc.setLineWidth(0.3);
         doc.line(margin, pageHeight - 35, pageWidth - margin, pageHeight - 35);
         
-        // Línea punteada de panes al pie (Solo 5 a la derecha para no tapar el texto)
-        await this.drawBreadLine(doc, 'hamburguesa.png', pageHeight - 31, 4, 1.5, 20, 5, 'right');
+        // Línea punteada (Hielos o Panes) al pie (Solo 5 a la derecha para no tapar el texto)
+        const footerDecoSize = breadLabel.toLowerCase().includes("hielo") ? 5 : 4; 
+        await this.drawBreadLine(doc, decorationImg, pageHeight - 31, footerDecoSize, 1.5, 20, 5, 'right');
 
         doc.setFontSize(9);
         doc.setTextColor(150, 150, 150);

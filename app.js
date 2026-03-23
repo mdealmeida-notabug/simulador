@@ -13,6 +13,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const breadImg = document.getElementById('breadImg');
     const logoImg = document.getElementById('logoImg');
     const logoPlaceholder = document.getElementById('logoPlaceholder');
+    const loadingOverlay = document.getElementById('loadingOverlay');
 
     // Controles
     const logoControls = document.getElementById('logoControls');
@@ -251,13 +252,27 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // --- 4. EXPORTAR PDF ---
     const btnDownloadPDF = document.getElementById('btnDownloadPDF');
-    btnDownloadPDF.addEventListener('click', () => {
+    btnDownloadPDF.addEventListener('click', async () => {
         const selectedBreadLabel = document.querySelector('input[name="breadType"]:checked').parentElement.textContent.trim();
         const width = logoCmValue.innerText;
         const height = logoCmHeightValue.innerText;
         const bronzeSize = document.getElementById('iceCmValue').innerText;
 
-        exporter.downloadPDF(logoThumbnail, breadImg, logoImg, previewArea, selectedBreadLabel, width, height, bronzeSize);
+        // Mostrar loading
+        loadingOverlay.style.display = 'flex';
+
+        // Pequeño delay para que el navegador renderice el overlay antes de la tarea pesada del PDF
+        await new Promise(resolve => setTimeout(resolve, 100));
+
+        try {
+            await exporter.downloadPDF(logoThumbnail, breadImg, logoImg, previewArea, selectedBreadLabel, width, height, bronzeSize);
+        } catch (error) {
+            console.error("Error al generar PDF:", error);
+            alert("Hubo un error al generar el PDF. Por favor, reintente.");
+        } finally {
+            // Ocultar loading
+            loadingOverlay.style.display = 'none';
+        }
     });
 
 

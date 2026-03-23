@@ -205,10 +205,7 @@ const exporter = {
         // --- 1. DISEÑO ---
         doc.setFontSize(13);
         doc.setTextColor(255, 102, 0);
-        // Centramos el título del diseño
-        const designTitle = "1. Diseño procesado para el sello:";
-        const titleWidth = doc.getTextWidth(designTitle);
-        doc.text(designTitle, (pageWidth - titleWidth) / 2, y);
+        doc.text("1. Diseño procesado para el sello:", margin, y);
         
         y += 8;
         const logoSize = 35;
@@ -220,9 +217,7 @@ const exporter = {
             const resizedLogo = await this.resizeLogoForPDF(logoThumbnail.src, 500);
             doc.addImage(resizedLogo, 'JPEG', logoX, y, logoSize, logoSize, undefined, 'FAST');
         } catch (e) {
-            const errorText = "[Imagen no disponible]";
-            const errorWidth = doc.getTextWidth(errorText);
-            doc.text(errorText, (pageWidth - errorWidth) / 2, y + 10);
+            doc.text("[Imagen no disponible]", margin, y + 10);
         }
         y += 50;
 

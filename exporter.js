@@ -100,7 +100,10 @@ const exporter = {
      */
     async downloadPDF(logoThumbnail, breadImg, logoImg, previewArea, breadLabel, width, height, bronzeSize) {
         const { jsPDF } = window.jspdf;
-        const doc = new jsPDF();
+        // Habilitamos compresión interna de jsPDF
+        const doc = new jsPDF({
+            compress: true
+        });
         const margin = 20;
         const pageWidth = doc.internal.pageSize.getWidth();
         const pageHeight = doc.internal.pageSize.getHeight();
@@ -158,7 +161,8 @@ const exporter = {
         doc.text("1. Diseño procesado para el sello:", margin, y);
         y += 8;
         try {
-            doc.addImage(logoThumbnail.src, 'PNG', margin, y, 35, 35);
+            // Usamos JPEG para la miniatura también si es posible, o simplemente confiamos en el tamaño pequeño
+            doc.addImage(logoThumbnail.src, 'JPEG', margin, y, 35, 35, undefined, 'FAST');
         } catch (e) {
             doc.text("[Imagen no disponible]", margin, y + 10);
         }
@@ -172,16 +176,31 @@ const exporter = {
         y += 8;
         
         const compositeCanvas = this.generateCompositeCanvas(breadImg, logoImg, previewArea);
-        const compositeData = compositeCanvas.toDataURL('image/png');
+        
+        // Optimización: Si el canvas es gigante, lo reducimos antes de exportar
+        let finalCanvas = compositeCanvas;
+        const MAX_WIDTH = 1200;
+        if (compositeCanvas.width > MAX_WIDTH) {
+            const scale = MAX_WIDTH / compositeCanvas.width;
+            const resizedCanvas = document.createElement('canvas');
+            resizedCanvas.width = MAX_WIDTH;
+            resizedCanvas.height = compositeCanvas.height * scale;
+            const rCtx = resizedCanvas.getContext('2d');
+            rCtx.drawImage(compositeCanvas, 0, 0, resizedCanvas.width, resizedCanvas.height);
+            finalCanvas = resizedCanvas;
+        }
+
+        // Usamos JPEG con calidad 0.75 para reducir drásticamente el peso
+        const compositeData = finalCanvas.toDataURL('image/jpeg', 0.75);
         
         const pdfWidth = (pageWidth - (margin * 2)) * 0.5;
-        const pdfHeight = (compositeCanvas.height * pdfWidth) / compositeCanvas.width;
+        const pdfHeight = (finalCanvas.height * pdfWidth) / finalCanvas.width;
         const xOffset = (pageWidth - pdfWidth) / 2;
         
         // Marco sutil para la simulación
         doc.setDrawColor(240, 240, 240);
         doc.rect(xOffset - 0.5, y - 0.5, pdfWidth + 1, pdfHeight + 1);
-        doc.addImage(compositeData, 'PNG', xOffset, y, pdfWidth, pdfHeight);
+        doc.addImage(compositeData, 'JPEG', xOffset, y, pdfWidth, pdfHeight, undefined, 'FAST');
         
         y += pdfHeight + 25;
 

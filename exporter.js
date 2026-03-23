@@ -59,6 +59,42 @@ const exporter = {
     },
 
     /**
+     * Redimensiona una imagen (base64 o URL) para que no exceda un tamaño máximo,
+     * devolviendo un base64 de un JPEG comprimido.
+     */
+    async resizeLogoForPDF(src, maxDimension = 500) {
+        return new Promise((resolve) => {
+            const img = new Image();
+            img.onload = () => {
+                const canvas = document.createElement('canvas');
+                let width = img.width;
+                let height = img.height;
+
+                if (width > height) {
+                    if (width > maxDimension) {
+                        height *= maxDimension / width;
+                        width = maxDimension;
+                    }
+                } else {
+                    if (height > maxDimension) {
+                        width *= maxDimension / height;
+                        height = maxDimension;
+                    }
+                }
+
+                canvas.width = width;
+                canvas.height = height;
+                const ctx = canvas.getContext('2d');
+                ctx.drawImage(img, 0, 0, width, height);
+                // Calidad 0.6 para el thumbnail del diseño
+                resolve(canvas.toDataURL('image/jpeg', 0.6));
+            };
+            img.onerror = () => resolve(src); // Si falla, devolvemos original
+            img.src = src;
+        });
+    },
+
+    /**
      * Dibuja una línea de miniaturas (punteada) usando una imagen.
      * align: 'left' recorre todo el ancho, 'right' coloca maxItems a la derecha.
      */
@@ -75,13 +111,17 @@ const exporter = {
                 let count = 0;
 
                 if (align === 'right') {
-                    // Calculamos el inicio para que los N items terminen en endX
                     const totalWidth = (maxItems * size) + ((maxItems - 1) * spacing);
                     currentX = endX - totalWidth;
                 }
                 
+                // Agregamos la imagen al PDF solo una vez para obtener un alias interno de jsPDF
+                // y que no se repitan los datos binarios en cada addImage del bucle.
+                const imgAlias = src; // jsPDF usa el src/data como clave de cache interna
+                
                 while (currentX + size <= endX + 0.1 && count < maxItems) {
-                    doc.addImage(img, 'PNG', currentX, y - imgHeight/2, size, imgHeight);
+                    // Usamos la referencia a la imagen cargada
+                    doc.addImage(img, 'JPEG', currentX, y - imgHeight/2, size, imgHeight, imgAlias, 'FAST');
                     currentX += size + spacing;
                     count++;
                 }
@@ -161,8 +201,10 @@ const exporter = {
         doc.text("1. Diseño procesado para el sello:", margin, y);
         y += 8;
         try {
-            // Usamos JPEG para la miniatura también si es posible, o simplemente confiamos en el tamaño pequeño
-            doc.addImage(logoThumbnail.src, 'JPEG', margin, y, 35, 35, undefined, 'FAST');
+            // REDIMENSIÓN AGRESIVA: El logo original puede ser enorme (10MB+). 
+            // Lo achicamos antes de meterlo al PDF para bajar el peso radicalmente.
+            const resizedLogo = await this.resizeLogoForPDF(logoThumbnail.src, 500);
+            doc.addImage(resizedLogo, 'JPEG', margin, y, 35, 35, undefined, 'FAST');
         } catch (e) {
             doc.text("[Imagen no disponible]", margin, y + 10);
         }
@@ -190,8 +232,8 @@ const exporter = {
             finalCanvas = resizedCanvas;
         }
 
-        // Usamos JPEG con calidad 0.75 para reducir drásticamente el peso
-        const compositeData = finalCanvas.toDataURL('image/jpeg', 0.75);
+        // Usamos JPEG con calidad 0.70 para reducir drásticamente el peso
+        const compositeData = finalCanvas.toDataURL('image/jpeg', 0.70);
         
         const pdfWidth = (pageWidth - (margin * 2)) * 0.5;
         const pdfHeight = (finalCanvas.height * pdfWidth) / finalCanvas.width;

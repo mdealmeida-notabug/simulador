@@ -59,7 +59,34 @@ const exporter = {
     },
 
     /**
-     * Genera y descarga el PDF con toques artísticos.
+     * Dibuja un pequeño pan artesanal minimalista usando primitivas de jsPDF.
+     */
+    drawArtisanBread(doc, x, y, size, rotation = 0) {
+        doc.save();
+        doc.setDrawColor(255, 102, 0); // Usamos naranja NAB para coherencia
+        doc.setLineWidth(0.3);
+        
+        // Trasladar y rotar
+        // doc.rotate no existe tal cual en jsPDF estándar sin plugins, 
+        // pero podemos simularlo con la posición de los puntos.
+        
+        // Cuerpo: Elipse simplificada con líneas
+        const w = size;
+        const h = size * 0.6;
+        
+        // Dibujamos un óvalo "hecho a mano"
+        doc.ellipse(x, y, w, h, 'S');
+        
+        // Cortes del pan (3 líneas curvas)
+        doc.line(x - w*0.4, y - h*0.2, x - w*0.1, y + h*0.4);
+        doc.line(x - w*0.1, y - h*0.4, x + w*0.2, y + h*0.2);
+        doc.line(x + w*0.2, y - h*0.2, x + w*0.5, y + h*0.4);
+        
+        doc.restore();
+    },
+
+    /**
+     * Genera y descarga el PDF con toques artísticos orgánicos.
      */
     async downloadPDF(logoThumbnail, breadImg, logoImg, previewArea, breadLabel, width, height, bronzeSize) {
         const { jsPDF } = window.jspdf;
@@ -69,77 +96,73 @@ const exporter = {
         const pageHeight = doc.internal.pageSize.getHeight();
         let y = 15;
 
-        // --- DECORACIÓN ARTÍSTICA: HEADER ---
-        doc.setFillColor(255, 102, 0); // Naranja NAB
-        doc.rect(0, 0, pageWidth, 5, 'F'); // Barra superior
+        // --- DECORACIÓN: "PANCITOS DESORDENADOS" EN EL ENCABEZADO ---
+        this.drawArtisanBread(doc, 15, 10, 6);
+        this.drawArtisanBread(doc, 25, 8, 4);
+        this.drawArtisanBread(doc, pageWidth - 20, 12, 5);
+        this.drawArtisanBread(doc, pageWidth - 35, 9, 4);
 
-        // Pequeño ícono de "Sello/Utensilio" minimalista (vía código)
         doc.setDrawColor(255, 102, 0);
-        doc.setLineWidth(0.5);
-        // Dibujo de una espátula simple a la izquierda
-        doc.line(margin, 12, margin + 5, 12); // Mango
-        doc.rect(margin + 5, 10, 4, 4); // Hoja
+        doc.setLineWidth(0.8);
+        doc.line(margin, 18, pageWidth - margin, 18); // Línea naranja orgánica
 
-        y = 22;
+        y = 28;
         const dateStr = new Date().toLocaleDateString('es-ES', { 
             year: 'numeric', 
             month: 'long', 
             day: 'numeric' 
         });
 
-        // Título principal
-        doc.setFontSize(22);
+        // Título estilizado
+        doc.setFontSize(24);
         doc.setTextColor(255, 102, 0);
-        doc.text("Reporte de Simulación", margin + 12, y);
-        doc.setFontSize(10);
-        doc.setTextColor(100, 100, 100);
-        doc.text("NAB SELLOS METÁLICOS", margin + 12, y + 5);
+        doc.text("Tu Simulación NAB", margin, y);
         
-        y += 20;
+        doc.setFontSize(10);
+        doc.setTextColor(150, 150, 150);
+        doc.text("CALIDAD ARTESANAL EN CADA SELLO", margin, y + 6);
+        
+        y += 22;
 
         // --- DATOS TÉCNICOS ---
-        doc.setDrawColor(200, 200, 200);
-        doc.setLineDash([1, 1]); // Línea punteada "guía"
-        doc.line(margin, y - 5, pageWidth - margin, y - 5);
-        doc.setLineDash([]); // Reset
-
         doc.setFontSize(11);
-        doc.setTextColor(50, 50, 50);
+        doc.setTextColor(80, 80, 80);
         doc.text(`Fecha: ${dateStr}`, margin, y);
         y += 7;
         doc.text(`Objeto: ${breadLabel}`, margin, y);
         y += 7;
-        doc.text(`Medida del Logo: ${width} cm x ${height} cm`, margin, y);
+        doc.text(`Medida del Diseño: ${width} cm x ${height} cm`, margin, y);
         
         if (bronzeSize && !isNaN(bronzeSize) && breadLabel.toLowerCase().includes("hielo")) {
-            y += 7;
+            y += 8;
+            doc.setFontSize(12);
             doc.setFont("helvetica", "bold");
             doc.setTextColor(255, 102, 0);
             doc.text(`Medida del Bronce sugerida: ${bronzeSize} mm`, margin, y);
             doc.setFont("helvetica", "normal");
-            doc.setTextColor(50, 50, 50);
+            doc.setTextColor(80, 80, 80);
         }
         
         y += 15;
 
-        // --- 1. LOGO ORIGINAL ---
-        doc.setFontSize(14);
+        // --- 1. DISEÑO ---
+        doc.setFontSize(13);
         doc.setTextColor(255, 102, 0);
-        doc.text("1. Diseño procesado:", margin, y);
-        y += 7;
+        doc.text("1. Diseño procesado para el sello:", margin, y);
+        y += 8;
         try {
             doc.addImage(logoThumbnail.src, 'PNG', margin, y, 35, 35);
         } catch (e) {
-            doc.text("[Error cargando imagen]", margin, y + 10);
+            doc.text("[Imagen no disponible]", margin, y + 10);
         }
         y += 50;
 
-        // --- 2. SIMULACIÓN COMPUESTA ---
-        const simLabel = breadLabel.toLowerCase().includes("hielo") ? "2. Simulación de logo sobre hielo:" : "2. Simulación en el Pan:";
-        doc.setFontSize(14);
+        // --- 2. SIMULACIÓN ---
+        const simLabel = breadLabel.toLowerCase().includes("hielo") ? "2. Simulación de logo sobre hielo:" : "2. Simulación sobre el pan:";
+        doc.setFontSize(13);
         doc.setTextColor(255, 102, 0);
         doc.text(simLabel, margin, y);
-        y += 7;
+        y += 8;
         
         const compositeCanvas = this.generateCompositeCanvas(breadImg, logoImg, previewArea);
         const compositeData = compositeCanvas.toDataURL('image/png');
@@ -148,28 +171,28 @@ const exporter = {
         const pdfHeight = (compositeCanvas.height * pdfWidth) / compositeCanvas.width;
         const xOffset = (pageWidth - pdfWidth) / 2;
         
-        // Sombra/Borde sutil para la imagen
-        doc.setDrawColor(230, 230, 230);
-        doc.setLineDash([]);
-        doc.rect(xOffset - 1, y - 1, pdfWidth + 2, pdfHeight + 2);
-        
+        // Marco sutil para la simulación
+        doc.setDrawColor(240, 240, 240);
+        doc.rect(xOffset - 0.5, y - 0.5, pdfWidth + 1, pdfHeight + 1);
         doc.addImage(compositeData, 'PNG', xOffset, y, pdfWidth, pdfHeight);
         
         y += pdfHeight + 25;
 
-        // --- FOOTER ARTÍSTICO ---
-        doc.setDrawColor(200, 200, 200);
-        doc.line(margin, pageHeight - 20, pageWidth - margin, pageHeight - 20);
+        // --- PIE DE PÁGINA CASUAL ---
+        doc.setDrawColor(255, 102, 0);
+        doc.setLineWidth(0.3);
+        doc.line(margin, pageHeight - 25, pageWidth - margin, pageHeight - 25);
         
+        // Pequeño pan al pie
+        this.drawArtisanBread(doc, pageWidth - margin - 10, pageHeight - 15, 4);
+
         doc.setFontSize(9);
         doc.setTextColor(150, 150, 150);
-        doc.text("NAB Sellos Metálicos - nabsellosmetalicos.ar", margin, pageHeight - 12);
-        doc.text("Expertos en marcación industrial y gastronómica", margin, pageHeight - 8);
+        doc.text("Hecho con pasión por NAB Sellos Metálicos", margin, pageHeight - 15);
+        doc.text("nabsellosmetalicos.ar | Expertos en gastronomía", margin, pageHeight - 10);
         
-        // Versión del generador
         doc.setFontSize(8);
-        doc.setTextColor(200, 200, 200);
-        doc.text("Generador PDF v2.3", pageWidth - margin - 30, pageHeight - 12);
+        doc.text("Generador PDF v2.4 (Artisan Edition)", pageWidth - margin - 45, pageHeight - 8);
 
         // Guardar
         doc.save(`Simulacion_NAB_Sellos_${Date.now()}.pdf`);

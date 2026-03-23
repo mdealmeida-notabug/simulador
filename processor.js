@@ -36,7 +36,7 @@ function processImageToAlphaAndCrop(imageSrc, isIce, callback) {
         const toastR = isIce ? 0   : 90;
         const toastG = isIce ? 0   : 45;
         const toastB = isIce ? 0   : 15;
-        const toastA = isIce ? 51  : 255; // 20% de 255 es aprox 51
+        const toastA = isIce ? 128 : 255; // Reducimos transparencia (ahora ~50% opaco)
 
         for (let i = 0; i < data.length; i += 4) {
             let r = data[i], g = data[i + 1], b = data[i + 2], a = data[i + 3];

@@ -249,20 +249,20 @@ const exporter = {
         // --- PIE DE PÁGINA CASUAL ---
         doc.setDrawColor(255, 102, 0);
         doc.setLineWidth(0.3);
-        doc.line(margin, pageHeight - 25, pageWidth - margin, pageHeight - 25);
+        doc.line(margin, pageHeight - 35, pageWidth - margin, pageHeight - 35);
         
         // Línea punteada de panes al pie (Solo 5 a la derecha para no tapar el texto)
-        await this.drawBreadLine(doc, 'hamburguesa.png', pageHeight - 21, 4, 1.5, 20, 5, 'right');
+        await this.drawBreadLine(doc, 'hamburguesa.png', pageHeight - 31, 4, 1.5, 20, 5, 'right');
 
         doc.setFontSize(9);
         doc.setTextColor(150, 150, 150);
-        doc.text("Hecho con pasión por NAB Sellos Metálicos", margin, pageHeight - 17);
-        doc.text("nabsellosmetalicos.ar | +54 9 11 3565 4750", margin, pageHeight - 12);
-        doc.text("instagram.com/nabsellosmetalicos", margin, pageHeight - 7);
-        doc.text("facebook.com/nabsellosmetalicos", margin, pageHeight - 2);
+        doc.text("Hecho con pasión por NAB Sellos Metálicos", margin, pageHeight - 27);
+        doc.text("nabsellosmetalicos.ar | +54 9 11 3565 4750", margin, pageHeight - 22);
+        doc.text("instagram.com/nabsellosmetalicos", margin, pageHeight - 17);
+        doc.text("facebook.com/nabsellosmetalicos", margin, pageHeight - 12);
         
         doc.setFontSize(8);
-        doc.text("Generador PDF v2.5 (Photo Edition)", pageWidth - margin - 45, pageHeight - 2);
+        doc.text("Generador PDF v2.5 (Photo Edition)", pageWidth - margin - 45, pageHeight - 12);
 
         // Guardar
         doc.save(`Simulacion_NAB_Sellos_${Date.now()}.pdf`);

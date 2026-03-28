@@ -96,6 +96,39 @@ document.addEventListener('DOMContentLoaded', () => {
         const encodedMessage = encodeURIComponent(message);
         whatsappBtn.dataset.message = message;
         whatsappBtn.href = `https://wa.me/5491135654750?text=${encodedMessage}`;
+        
+        // Llama a la actualización del subtítulo
+        updateSummarySubtitle();
+    }
+
+    // --- 2.c ACTUALIZAR SUBTÍTULO Y BOTÓN DE CONTINUAR ---
+    function updateSummarySubtitle() {
+        const dynamicSubtitle = document.getElementById('dynamicSubtitle');
+        const mainSubtitle = document.getElementById('mainSubtitle');
+        const btnProceed = document.getElementById('btnProceedToTech');
+        const currentLogo = document.getElementById('logoThumbnail').getAttribute('src');
+        
+        // Si no hay imagen cargada
+        if (!currentLogo || currentLogo === "") {
+            if (dynamicSubtitle) dynamicSubtitle.style.display = 'none';
+            if (mainSubtitle) mainSubtitle.style.display = 'block';
+            if (btnProceed) btnProceed.disabled = true;
+            return;
+        }
+
+        // Si hay una imagen cargada
+        if (btnProceed) btnProceed.disabled = false;
+        if (mainSubtitle) mainSubtitle.style.display = 'none';
+        
+        if (dynamicSubtitle) {
+            dynamicSubtitle.style.display = 'block';
+            const materialLabel = document.querySelector('input[name="stampMaterial"]:checked').parentElement.textContent.trim().toLowerCase();
+            const typeLabel = document.querySelector('input[name="stampType"]:checked').parentElement.textContent.trim().toLowerCase();
+            const width = document.getElementById('logoCmValue').innerText;
+            const height = document.getElementById('logoCmHeightValue').innerText;
+            
+            dynamicSubtitle.innerHTML = `Su sello es de <strong>${materialLabel}</strong>, <strong>${typeLabel}</strong> y el logo es de <strong>${width} x ${height} cm</strong>.`;
+        }
     }
 
     // --- 2.b ACTUALIZAR INFO DE SELLOS ---

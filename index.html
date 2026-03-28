@@ -12,7 +12,8 @@
 
     <div class="container">
         <h1>Probá tu logo</h1>
-        <p class="subtitle">Simulá como va a quedar tu sello en distintos objetos.</p>
+        <p class="subtitle" id="mainSubtitle">Simulá como va a quedar tu sello en distintos objetos.</p>
+        <p id="dynamicSubtitle" class="dynamic-subtitle" style="display: none;"></p>
         
         <div class="form-group">
             <p><strong>1. Subí tu diseño o elegí uno de nuestra galería:</strong></p>
@@ -120,7 +121,7 @@
 
         </div>
 
-        <button id="btnProceedToTech" class="primary-btn" style="width: 100%; margin-bottom: 20px; font-weight: bold; padding: 15px; font-size: 1.1em; text-align: center;">
+        <button id="btnProceedToTech" class="primary-btn" style="width: 100%; margin-bottom: 20px; font-weight: bold; padding: 15px; font-size: 1.1em; text-align: center;" disabled>
             <i class="fas fa-check-circle"></i> Estoy conforme con el diseño y medidas. <br>Veamos temas técnicos para presupuestar.
         </button>
 

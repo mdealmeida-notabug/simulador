@@ -171,6 +171,15 @@ button:hover {
     background-color: #e65c00;
 }
 
+#btnProceedToTech:disabled {
+    background-color: #cccccc !important;
+    color: #888888 !important;
+    cursor: not-allowed !important;
+    transform: none !important;
+    box-shadow: none !important;
+    opacity: 0.8;
+}
+
 .secondary-btn {
     background-color: #444;
     color: white;
@@ -393,6 +402,23 @@ button:hover {
     font-size: 1.1em;
     margin-top: -10px;
     margin-bottom: 30px;
+}
+
+.dynamic-subtitle {
+    color: #444;
+    font-size: 1.05em;
+    margin-top: -15px;
+    margin-bottom: 25px;
+    background: rgba(255, 255, 255, 0.7);
+    padding: 12px;
+    border-radius: 8px;
+    border-left: 4px solid #00c853;
+    animation: fadeIn 0.3s ease-in;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(-5px); }
+    to { opacity: 1; transform: translateY(0); }
 }
 
 footer {

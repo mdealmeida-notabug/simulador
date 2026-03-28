@@ -338,6 +338,15 @@ document.addEventListener('DOMContentLoaded', () => {
     
     if (btnProceedToTech) {
         btnProceedToTech.addEventListener('click', () => {
+            // Generar miniatura
+            const canvas = exporter.generateCompositeCanvas(breadImg, logoImg, previewAreaMain);
+            const summaryThumbnail = document.getElementById('summaryThumbnail');
+            const summaryThumbnailContainer = document.getElementById('summaryThumbnailContainer');
+            if (summaryThumbnail && summaryThumbnailContainer && canvas) {
+                summaryThumbnail.src = canvas.toDataURL('image/jpeg', 0.8);
+                summaryThumbnailContainer.style.display = 'block';
+            }
+
             // Ocultar sección de diseño
             if (step1Upload) step1Upload.style.display = 'none';
             if (step2Object) step2Object.style.display = 'none';

@@ -330,8 +330,22 @@ document.addEventListener('DOMContentLoaded', () => {
     const btnProceedToTech = document.getElementById('btnProceedToTech');
     const technicalAndExportSection = document.getElementById('technicalAndExportSection');
     
+    const step1Upload = document.getElementById('step1Upload');
+    const step2Object = document.getElementById('step2Object');
+    const previewAreaMain = document.getElementById('previewArea');
+    const infoTextContainer = document.getElementById('infoTextContainer');
+    const controlsContainerMain = document.getElementById('controlsContainer');
+    
     if (btnProceedToTech) {
         btnProceedToTech.addEventListener('click', () => {
+            // Ocultar sección de diseño
+            if (step1Upload) step1Upload.style.display = 'none';
+            if (step2Object) step2Object.style.display = 'none';
+            if (previewAreaMain) previewAreaMain.style.display = 'none';
+            if (infoTextContainer) infoTextContainer.style.display = 'none';
+            if (controlsContainerMain) controlsContainerMain.style.display = 'none';
+
+            // Mostrar sección técnica
             btnProceedToTech.style.display = 'none';
             technicalAndExportSection.style.display = 'block';
             

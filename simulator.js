@@ -71,12 +71,12 @@ const simulator = {
             let initialLogoCm;
             
             if (isIce) {
-                // 34mm (3.4cm) garantiza que caerá en el bronce de 35mm
-                if (this.currentAspectRatio >= 1) { // alto mayor al ancho
-                    initialLogoCm = 3.4 / this.currentAspectRatio;
-                } else {
-                    initialLogoCm = 3.4;
-                }
+                // Queremos que la diagonal del logo sea 3.4cm (34mm) para que las esquinas encajen
+                // perfectamente dentro de la circunferencia visible de 35mm sin sobresalir.
+                // diagonal^2 = ancho^2 + alto^2  -> alto = ancho * aspect
+                // ancho = sqrt( diagonal^2 / (1 + aspect^2) )
+                const targetDiagonal = 3.4;
+                initialLogoCm = Math.sqrt(Math.pow(targetDiagonal, 2) / (1 + Math.pow(this.currentAspectRatio, 2)));
             } else {
                 const breadInfo = breadData[selectedBread];
                 const breadWidth = breadInfo.widthCm;
@@ -170,13 +170,13 @@ const simulator = {
         const currentCmWidth = (this.currentScale / 100) * baseBreadWidth;
         const currentCmHeight = currentCmWidth * this.currentAspectRatio;
 
-        // Calcular la dimensión mayor en mm (ancho o alto, según pida el usuario)
-        const maxDimensionMm = Math.max(currentCmWidth, currentCmHeight) * 10;
+        // Calcular la diagonal en mm (las esquinas del rectángulo deben caber en el círculo)
+        const diagonalMm = Math.sqrt(Math.pow(currentCmWidth, 2) + Math.pow(currentCmHeight, 2)) * 10;
 
         // Determinar medida del círculo (22, 35, 56)
-        // Agregamos +1 para que salte cuando esté a 1mm de superar la medida (en la dimensión mayor)
+        // Agregamos +1 para que salte cuando esté a 1mm de superar la medida (en su diagonal)
         const measures = [22, 35, 56];
-        let targetDiameter = measures.find(d => d >= (maxDimensionMm + 1));
+        let targetDiameter = measures.find(d => d >= (diagonalMm + 1));
         
         // Si no entra en ninguno, mostramos el máximo de 56 sugerido (o nada)
         if (!targetDiameter) targetDiameter = 56;

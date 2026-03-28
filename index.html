@@ -60,35 +60,7 @@
             </div>
         </div>
 
-        <div class="form-group" id="stampTypeSection">
-            <p><strong>3. Elegí tipo de sello:</strong></p>
-            <div class="radio-group">
-                <label>
-                    <input type="radio" name="stampType" value="electrico" checked> Eléctrico
-                </label>
-                <label>
-                    <input type="radio" name="stampType" value="fuego"> A Fuego
-                </label>
-            </div>
-            <div id="stampTypeInfo" class="info-box">
-                <!-- Se cargará por JS -->
-            </div>
-        </div>
-
-        <div class="form-group" id="stampMaterialSection">
-            <p><strong>4. Elegí material:</strong></p>
-            <div class="radio-group">
-                <label>
-                    <input type="radio" name="stampMaterial" value="bronce" checked> Bronce
-                </label>
-                <label>
-                    <input type="radio" name="stampMaterial" value="aluminio"> Aluminio
-                </label>
-            </div>
-            <div id="stampMaterialInfo" class="info-box">
-                <!-- Se cargará por JS -->
-            </div>
-        </div>
+        <!-- Opciones técnicas movidas hacia el final del flujo -->
 
         <div id="previewArea">
             <!-- Pongo la imagen por defecto directo en el HTML para evitar que quede en blanco -->
@@ -146,10 +118,49 @@
                 </div>
             </div>
 
-            <button id="btnDownloadPDF" class="download-btn">Descargar PDF de Simulación</button>
-            <a href="https://wa.me/5491135654750" target="_blank" class="whatsapp-btn download-btn" id="whatsappBtn">
-                <i class="fas fa-whatsapp"></i> Envianos un WhatsApp
-            </a>
+        </div>
+
+        <button id="btnProceedToTech" class="primary-btn" style="width: 100%; margin-bottom: 20px; font-weight: bold; padding: 15px; font-size: 1.1em; text-align: center;">
+            <i class="fas fa-check-circle"></i> Estoy conforme con el diseño y medidas. <br>Veamos temas técnicos para presupuestar.
+        </button>
+
+        <div id="technicalAndExportSection" style="display: none; width: 100%;">
+            <div class="form-group" id="stampTypeSection">
+                <p><strong>3. Elegí tipo de sello:</strong></p>
+                <div class="radio-group">
+                    <label>
+                        <input type="radio" name="stampType" value="electrico" checked> Eléctrico
+                    </label>
+                    <label>
+                        <input type="radio" name="stampType" value="fuego"> A Fuego
+                    </label>
+                </div>
+                <div id="stampTypeInfo" class="info-box">
+                    <!-- Se cargará por JS -->
+                </div>
+            </div>
+
+            <div class="form-group" id="stampMaterialSection">
+                <p><strong>4. Elegí material:</strong></p>
+                <div class="radio-group">
+                    <label>
+                        <input type="radio" name="stampMaterial" value="bronce" checked> Bronce
+                    </label>
+                    <label>
+                        <input type="radio" name="stampMaterial" value="aluminio"> Aluminio
+                    </label>
+                </div>
+                <div id="stampMaterialInfo" class="info-box">
+                    <!-- Se cargará por JS -->
+                </div>
+            </div>
+
+            <div id="exportButtonsContainer" style="display: flex; flex-direction: column; gap: 10px; margin-top: 20px;">
+                <button id="btnDownloadPDF" class="download-btn" style="width: 100%; box-sizing: border-box;">Descargar PDF de Simulación</button>
+                <a href="https://wa.me/5491135654750" target="_blank" class="whatsapp-btn download-btn" id="whatsappBtn" style="width: 100%; box-sizing: border-box;">
+                    <i class="fas fa-whatsapp"></i> Envianos un WhatsApp
+                </a>
+            </div>
         </div>
     </div>
 

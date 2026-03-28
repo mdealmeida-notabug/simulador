@@ -293,6 +293,21 @@ document.addEventListener('DOMContentLoaded', () => {
         btn.addEventListener('touchend', stopRepeat);
     });
 
+    // --- BOTÓN CONTINUAR A TEMAS TÉCNICOS ---
+    const btnProceedToTech = document.getElementById('btnProceedToTech');
+    const technicalAndExportSection = document.getElementById('technicalAndExportSection');
+    
+    if (btnProceedToTech) {
+        btnProceedToTech.addEventListener('click', () => {
+            btnProceedToTech.style.display = 'none';
+            technicalAndExportSection.style.display = 'block';
+            
+            setTimeout(() => {
+                technicalAndExportSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }, 50);
+        });
+    }
+
     // --- 4. EXPORTAR PDF ---
     const btnDownloadPDF = document.getElementById('btnDownloadPDF');
     btnDownloadPDF.addEventListener('click', async () => {

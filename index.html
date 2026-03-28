@@ -60,6 +60,36 @@
             </div>
         </div>
 
+        <div class="form-group" id="stampTypeSection">
+            <p><strong>3. Elegí tipo de sello:</strong></p>
+            <div class="radio-group">
+                <label>
+                    <input type="radio" name="stampType" value="electrico" checked> Eléctrico
+                </label>
+                <label>
+                    <input type="radio" name="stampType" value="fuego"> A Fuego
+                </label>
+            </div>
+            <div id="stampTypeInfo" class="info-box">
+                <!-- Se cargará por JS -->
+            </div>
+        </div>
+
+        <div class="form-group" id="stampMaterialSection">
+            <p><strong>4. Elegí material:</strong></p>
+            <div class="radio-group">
+                <label>
+                    <input type="radio" name="stampMaterial" value="bronce" checked> Bronce
+                </label>
+                <label>
+                    <input type="radio" name="stampMaterial" value="aluminio"> Aluminio
+                </label>
+            </div>
+            <div id="stampMaterialInfo" class="info-box">
+                <!-- Se cargará por JS -->
+            </div>
+        </div>
+
         <div id="previewArea">
             <!-- Pongo la imagen por defecto directo en el HTML para evitar que quede en blanco -->
             <img id="breadImg" src="" alt="Producto">

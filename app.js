@@ -33,6 +33,11 @@ document.addEventListener('DOMContentLoaded', () => {
     const logoCmHeightValue = document.getElementById('logoCmHeightValue');
     const whatsappBtn = document.getElementById('whatsappBtn');
 
+    const stampTypeRadios = document.querySelectorAll('input[name="stampType"]');
+    const stampTypeInfo = document.getElementById('stampTypeInfo');
+    const stampMaterialRadios = document.querySelectorAll('input[name="stampMaterial"]');
+    const stampMaterialInfo = document.getElementById('stampMaterialInfo');
+
     const breadData = BREAD_CONFIG;
 
     // --- 0. CARGAR LOGOS PREDEFINIDOS ---
@@ -76,15 +81,42 @@ document.addEventListener('DOMContentLoaded', () => {
     // --- 2. ACTUALIZAR LINK WHATSAPP ---
     function updateWhatsAppLink() {
         const selectedBreadLabel = document.querySelector('input[name="breadType"]:checked').parentElement.textContent.trim();
+        const selectedTypeLabel = document.querySelector('input[name="stampType"]:checked').parentElement.textContent.trim();
+        const selectedMaterialLabel = document.querySelector('input[name="stampMaterial"]:checked').parentElement.textContent.trim();
+        
         const width = logoCmValue.innerText;
         const height = logoCmHeightValue.innerText;
 
         const message = `Hola NAB Sellos! Estuve probando el simulador y me interesa un sello. Estos son mis datos:
 - Objeto a sellar: ${selectedBreadLabel}
+- Tipo de sello: ${selectedTypeLabel}
+- Material: ${selectedMaterialLabel}
 - Medida del logo: ${width} cm de ancho x ${height} cm de alto.`;
 
         const encodedMessage = encodeURIComponent(message);
+        whatsappBtn.dataset.message = message;
         whatsappBtn.href = `https://wa.me/5491135654750?text=${encodedMessage}`;
+    }
+
+    // --- 2.b ACTUALIZAR INFO DE SELLOS ---
+    function updateStampInfo() {
+        const type = document.querySelector('input[name="stampType"]:checked').value;
+        const material = document.querySelector('input[name="stampMaterial"]:checked').value;
+
+        const typeTexts = {
+            'electrico': 'El <strong>sello eléctrico</strong> se enchufa y calienta en unos 15 minutos, manteniendo la temperatura constante. Permite marcar unos 30/40 panes antes de requerir un breve descanso de 3 minutos para recuperar la temperatura óptima.',
+            'fuego': 'El <strong>sello a fuego</strong> llega a temperatura de marcado en 4 minutos sobre hornalla. Permite marcar unos 6 panes seguidos, luego requiere recalentar 1 o 2 minutos para continuar.'
+        };
+
+        const materialTexts = {
+            'bronce': 'El <strong>Bronce</strong> es un material mucho más duro y duradero. Resiste mejor el desgaste de la limpieza con virulana (necesaria para quitar el hollín del tostado), garantizando una vida útil superior.',
+            'aluminio': 'El <strong>Aluminio</strong> es una opción más blanda. Al limpiarlo periódicamente con virulana para quitar el hollín, sufre un desgaste mayor que el bronce, lo que reduce su durabilidad a largo plazo.'
+        };
+
+        stampTypeInfo.innerHTML = typeTexts[type];
+        stampMaterialInfo.innerHTML = materialTexts[material];
+        
+        updateWhatsAppLink();
     }
 
     // --- 3. EVENTOS ---
@@ -93,6 +125,17 @@ document.addEventListener('DOMContentLoaded', () => {
     breadRadios.forEach(radio => {
         radio.addEventListener('change', updateBreadDisplay);
     });
+
+    stampTypeRadios.forEach(radio => {
+        radio.addEventListener('change', updateStampInfo);
+    });
+
+    stampMaterialRadios.forEach(radio => {
+        radio.addEventListener('change', updateStampInfo);
+    });
+
+    // Inicializar info
+    updateStampInfo();
 
     // --- TAB SWITCHING ---
     const tabBtns = document.querySelectorAll('.tab-btn');
@@ -254,6 +297,9 @@ document.addEventListener('DOMContentLoaded', () => {
     const btnDownloadPDF = document.getElementById('btnDownloadPDF');
     btnDownloadPDF.addEventListener('click', async () => {
         const selectedBreadLabel = document.querySelector('input[name="breadType"]:checked').parentElement.textContent.trim();
+        const selectedTypeLabel = document.querySelector('input[name="stampType"]:checked').parentElement.textContent.trim();
+        const selectedMaterialLabel = document.querySelector('input[name="stampMaterial"]:checked').parentElement.textContent.trim();
+        
         const width = logoCmValue.innerText;
         const height = logoCmHeightValue.innerText;
         const bronzeSize = document.getElementById('iceCmValue').innerText;
@@ -265,13 +311,81 @@ document.addEventListener('DOMContentLoaded', () => {
         await new Promise(resolve => setTimeout(resolve, 100));
 
         try {
-            await exporter.downloadPDF(logoThumbnail, breadImg, logoImg, previewArea, selectedBreadLabel, width, height, bronzeSize);
+            await exporter.downloadPDF(
+                logoThumbnail, 
+                breadImg, 
+                logoImg, 
+                previewArea, 
+                selectedBreadLabel, 
+                width, 
+                height, 
+                bronzeSize,
+                selectedTypeLabel,
+                selectedMaterialLabel
+            );
         } catch (error) {
             console.error("Error al generar PDF:", error);
             alert("Hubo un error al generar el PDF. Por favor, reintente.");
         } finally {
             // Ocultar loading
             loadingOverlay.style.display = 'none';
+        }
+    });
+
+    // --- 4.b COMPARTIR A WHATSAPP ---
+    whatsappBtn.addEventListener('click', async (e) => {
+        e.preventDefault();
+        
+        const selectedBreadLabel = document.querySelector('input[name="breadType"]:checked').parentElement.textContent.trim();
+        const selectedTypeLabel = document.querySelector('input[name="stampType"]:checked').parentElement.textContent.trim();
+        const selectedMaterialLabel = document.querySelector('input[name="stampMaterial"]:checked').parentElement.textContent.trim();
+        
+        const width = logoCmValue.innerText;
+        const height = logoCmHeightValue.innerText;
+        const bronzeSize = document.getElementById('iceCmValue').innerText;
+        
+        const msgTexto = whatsappBtn.dataset.message || "Hola NAB Sellos! Estuve probando el simulador y me interesa un sello.";
+        const fallbackUrl = whatsappBtn.href || `https://wa.me/5491135654750?text=${encodeURIComponent(msgTexto)}`;
+
+        loadingOverlay.style.display = 'flex';
+        loadingOverlay.querySelector('p').innerText = 'Preparando PDF...';
+        await new Promise(resolve => setTimeout(resolve, 100));
+
+        try {
+            const result = await exporter.downloadPDF(
+                logoThumbnail, breadImg, logoImg, previewArea, selectedBreadLabel, 
+                width, height, bronzeSize, selectedTypeLabel, selectedMaterialLabel, true
+            );
+            
+            const file = new File([result.blob], result.filename, { type: 'application/pdf' });
+            
+            if (navigator.canShare && navigator.canShare({ files: [file] })) {
+                loadingOverlay.style.display = 'none';
+                loadingOverlay.querySelector('p').innerText = 'Generando PDF...'; // reset texto
+                await navigator.share({
+                    title: 'Mi Simulación NAB Sellos',
+                    text: msgTexto,
+                    files: [file]
+                });
+            } else {
+                loadingOverlay.style.display = 'none';
+                loadingOverlay.querySelector('p').innerText = 'Generando PDF...'; // reset texto
+                
+                const a = document.createElement('a');
+                a.href = URL.createObjectURL(result.blob);
+                a.download = result.filename;
+                a.click();
+                
+                setTimeout(() => {
+                    alert("Tu navegador no soporta adjuntar archivos a WhatsApp automáticamente. Descargaremos el archivo para que puedas enviarlo a mano en el chat.");
+                    window.open(fallbackUrl, '_blank');
+                }, 500);
+            }
+        } catch (error) {
+            console.error("Error al compartir:", error);
+            loadingOverlay.style.display = 'none';
+            loadingOverlay.querySelector('p').innerText = 'Generando PDF...';
+            alert("Hubo un error al preparar el PDF. Por favor, reintente.");
         }
     });
 

@@ -142,7 +142,7 @@ const exporter = {
     /**
      * Genera y descarga el PDF con una estética de "punto de panes".
      */
-    async downloadPDF(logoThumbnail, breadImg, logoImg, previewArea, breadLabel, width, height, bronzeSize) {
+    async downloadPDF(logoThumbnail, breadImg, logoImg, previewArea, breadLabel, width, height, bronzeSize, stampType, stampMaterial, returnBlob = false) {
         const { jsPDF } = window.jspdf;
         // Habilitamos compresión interna de jsPDF
         const doc = new jsPDF({
@@ -188,6 +188,10 @@ const exporter = {
         y += 7;
         doc.text(`Objeto: ${breadLabel}`, margin, y);
         y += 7;
+        doc.text(`Tipo de Sello: ${stampType}`, margin, y);
+        y += 7;
+        doc.text(`Material: ${stampMaterial}`, margin, y);
+        y += 7;
         doc.text(`Medida del Diseño: ${width} cm x ${height} cm`, margin, y);
         
         if (bronzeSize && !isNaN(bronzeSize) && breadLabel.toLowerCase().includes("hielo")) {
@@ -208,18 +212,20 @@ const exporter = {
         doc.text("1. Diseño procesado para el sello:", margin, y);
         
         y += 8;
-        const logoSize = 35;
-        const logoX = (pageWidth - logoSize) / 2;
+        const logoWidth = 35;
+        const logoHeight = (logoThumbnail.naturalHeight * logoWidth) / logoThumbnail.naturalWidth;
+        const logoX = (pageWidth - logoWidth) / 2;
         
         try {
             // REDIMENSIÓN AGRESIVA: El logo original puede ser enorme (10MB+). 
             // Lo achicamos antes de meterlo al PDF para bajar el peso radicalmente.
             const resizedLogo = await this.resizeLogoForPDF(logoThumbnail.src, 500);
-            doc.addImage(resizedLogo, 'JPEG', logoX, y, logoSize, logoSize, undefined, 'FAST');
+            doc.addImage(resizedLogo, 'JPEG', logoX, y, logoWidth, logoHeight, undefined, 'FAST');
         } catch (e) {
             doc.text("[Imagen no disponible]", margin, y + 10);
+            y += 35;
         }
-        y += 50;
+        y += logoHeight + 15;
 
         // --- 2. SIMULACIÓN ---
         const simLabel = breadLabel.toLowerCase().includes("hielo") ? "2. Simulación de logo sobre hielo:" : "2. Simulación sobre el pan:";
@@ -276,7 +282,15 @@ const exporter = {
         doc.setFontSize(8);
         doc.text("Generador PDF v2.5 (Photo Edition)", pageWidth - margin - 45, pageHeight - 12);
 
-        // Guardar
-        doc.save(`Simulacion_NAB_Sellos_${Date.now()}.pdf`);
+        // Guardar o retornar
+        const filename = `Simulacion_NAB_Sellos_${Date.now()}.pdf`;
+        if (returnBlob) {
+            return {
+                blob: doc.output('blob'),
+                filename: filename
+            };
+        } else {
+            doc.save(filename);
+        }
     }
 };

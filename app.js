@@ -81,17 +81,23 @@ document.addEventListener('DOMContentLoaded', () => {
     // --- 2. ACTUALIZAR LINK WHATSAPP ---
     function updateWhatsAppLink() {
         const selectedBreadLabel = document.querySelector('input[name="breadType"]:checked').parentElement.textContent.trim();
-        const selectedTypeLabel = document.querySelector('input[name="stampType"]:checked').parentElement.textContent.trim();
-        const selectedMaterialLabel = document.querySelector('input[name="stampMaterial"]:checked').parentElement.textContent.trim();
-        
+        const selectedBreadVal = document.querySelector('input[name="breadType"]:checked').value;
         const width = logoCmValue.innerText;
         const height = logoCmHeightValue.innerText;
+        const bronzeSize = document.getElementById('iceCmValue').innerText;
 
-        const message = `Hola NAB Sellos! Estuve probando el simulador y me interesa un sello. Estos son mis datos:
-- Objeto a sellar: ${selectedBreadLabel}
-- Tipo de sello: ${selectedTypeLabel}
-- Material: ${selectedMaterialLabel}
-- Medida del logo: ${width} cm de ancho x ${height} cm de alto.`;
+        let message = `Hola NAB Sellos! Estuve probando el simulador y me interesa un sello. Estos son mis datos:\n- Objeto a sellar: ${selectedBreadLabel}`;
+
+        if (selectedBreadVal === 'hielo') {
+            message += `\n- Medida del Bronce: ${bronzeSize} mm`;
+            message += `\n- Medida del diseño: ${width} cm de ancho x ${height} cm de alto.`;
+        } else {
+            const selectedTypeLabel = document.querySelector('input[name="stampType"]:checked').parentElement.textContent.trim();
+            const selectedMaterialLabel = document.querySelector('input[name="stampMaterial"]:checked').parentElement.textContent.trim();
+            message += `\n- Tipo de sello: ${selectedTypeLabel}`;
+            message += `\n- Material: ${selectedMaterialLabel}`;
+            message += `\n- Medida del diseño: ${width} cm de ancho x ${height} cm de alto.`;
+        }
 
         const encodedMessage = encodeURIComponent(message);
         whatsappBtn.dataset.message = message;
@@ -118,12 +124,18 @@ document.addEventListener('DOMContentLoaded', () => {
         if (btnProceed) btnProceed.disabled = false;
         
         if (dynamicSubtitle) {
-            const materialLabel = document.querySelector('input[name="stampMaterial"]:checked').parentElement.textContent.trim().toLowerCase();
-            const typeLabel = document.querySelector('input[name="stampType"]:checked').parentElement.textContent.trim().toLowerCase();
+            const selectedBreadVal = document.querySelector('input[name="breadType"]:checked').value;
             const width = document.getElementById('logoCmValue').innerText;
             const height = document.getElementById('logoCmHeightValue').innerText;
-            
-            dynamicSubtitle.innerHTML = `Su sello es de <strong>${materialLabel}</strong>, <strong>${typeLabel}</strong> y el logo es de <strong>${width} x ${height} cm</strong>.`;
+
+            if (selectedBreadVal === 'hielo') {
+                const bronzeSize = document.getElementById('iceCmValue').innerText;
+                dynamicSubtitle.innerHTML = `Sello para Hielo (Bronce de ${bronzeSize}mm) con diseño de <strong>${width} x ${height} cm</strong>.`;
+            } else {
+                const materialLabel = document.querySelector('input[name="stampMaterial"]:checked').parentElement.textContent.trim().toLowerCase();
+                const typeLabel = document.querySelector('input[name="stampType"]:checked').parentElement.textContent.trim().toLowerCase();
+                dynamicSubtitle.innerHTML = `Su sello es de <strong>${materialLabel}</strong>, <strong>${typeLabel}</strong> y el logo es de <strong>${width} x ${height} cm</strong>.`;
+            }
         }
     }
 
@@ -355,6 +367,13 @@ document.addEventListener('DOMContentLoaded', () => {
             const dynSub = document.getElementById('dynamicSubtitle');
             if (mainSub) mainSub.style.display = 'none';
             if (dynSub) dynSub.style.display = 'block';
+
+            // Determinar si debemos ocultar opciones de material y tipo para Hielo
+            const isIceObj = document.querySelector('input[name="breadType"]:checked').value === 'hielo';
+            const stampTypeSection = document.getElementById('stampTypeSection');
+            const stampMaterialSection = document.getElementById('stampMaterialSection');
+            if (stampTypeSection) stampTypeSection.style.display = isIceObj ? 'none' : 'block';
+            if (stampMaterialSection) stampMaterialSection.style.display = isIceObj ? 'none' : 'block';
 
             // Mostrar sección técnica
             btnProceedToTech.style.display = 'none';

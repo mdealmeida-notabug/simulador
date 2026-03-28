@@ -67,23 +67,32 @@ const simulator = {
             logoControls.style.display = 'flex'; 
             logoMeasureText.style.display = 'block'; 
             
-            const selectedBread = document.querySelector('input[name="breadType"]:checked').value;
-            const breadInfo = breadData[selectedBread];
-            const breadWidth  = breadInfo.widthCm;
+            // Tamaño inicial
+            let initialLogoCm;
             
-            // Tamaño inicial: ancho real del pan actual menos 3cm, mínimo 2cm
-            const realBreadWidth = breadWidth * this.breadScale;
-            let initialLogoCm = Math.max(realBreadWidth - 3, 2);
+            if (isIce) {
+                // 34mm (3.4cm) garantiza que caerá en el bronce de 35mm
+                if (this.currentAspectRatio >= 1) { // alto mayor al ancho
+                    initialLogoCm = 3.4 / this.currentAspectRatio;
+                } else {
+                    initialLogoCm = 3.4;
+                }
+            } else {
+                const breadInfo = breadData[selectedBread];
+                const breadWidth = breadInfo.widthCm;
+                const realBreadWidth = breadWidth * this.breadScale;
+                initialLogoCm = Math.max(realBreadWidth - 3, 2);
 
-            // Además, asegurar que el alto del logo no supere el alto del pan
-            if (breadInfo.heightCm && this.currentAspectRatio > 0) {
-                const realBreadHeight = breadInfo.heightCm * this.breadScale;
-                const logoHeightAtInitial = initialLogoCm * this.currentAspectRatio;
-                if (logoHeightAtInitial > realBreadHeight) {
-                    initialLogoCm = realBreadHeight / this.currentAspectRatio;
+                if (breadInfo.heightCm && this.currentAspectRatio > 0) {
+                    const realBreadHeight = breadInfo.heightCm * this.breadScale;
+                    const logoHeightAtInitial = initialLogoCm * this.currentAspectRatio;
+                    if (logoHeightAtInitial > realBreadHeight) {
+                        initialLogoCm = realBreadHeight / this.currentAspectRatio;
+                    }
                 }
             }
 
+            const breadWidth = breadData[selectedBread].widthCm;
             this.currentScale = (initialLogoCm / breadWidth) * 100;
             
             this.updateVisuals(logoImg, document.getElementById('breadImg'));

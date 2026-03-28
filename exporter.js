@@ -188,20 +188,25 @@ const exporter = {
         y += 7;
         doc.text(`Objeto: ${breadLabel}`, margin, y);
         y += 7;
-        doc.text(`Tipo de Sello: ${stampType}`, margin, y);
-        y += 7;
-        doc.text(`Material: ${stampMaterial}`, margin, y);
-        y += 7;
-        doc.text(`Medida del Diseño: ${width} cm x ${height} cm`, margin, y);
-        
-        if (bronzeSize && !isNaN(bronzeSize) && breadLabel.toLowerCase().includes("hielo")) {
-            y += 8;
-            doc.setFontSize(12);
-            doc.setFont("helvetica", "bold");
-            doc.setTextColor(255, 102, 0);
-            doc.text(`Medida del Bronce sugerida: ${bronzeSize} mm`, margin, y);
-            doc.setFont("helvetica", "normal");
-            doc.setTextColor(80, 80, 80);
+
+        if (breadLabel.toLowerCase().includes("hielo")) {
+            if (bronzeSize && !isNaN(bronzeSize)) {
+                doc.setFontSize(12);
+                doc.setFont("helvetica", "bold");
+                doc.setTextColor(255, 102, 0);
+                doc.text(`Medida del Bronce sugerida: ${bronzeSize} mm`, margin, y);
+                doc.setFont("helvetica", "normal");
+                doc.setTextColor(80, 80, 80);
+                doc.setFontSize(11);
+                y += 7;
+            }
+            doc.text(`Medida del Diseño: ${width} cm x ${height} cm`, margin, y);
+        } else {
+            doc.text(`Tipo de Sello: ${stampType}`, margin, y);
+            y += 7;
+            doc.text(`Material: ${stampMaterial}`, margin, y);
+            y += 7;
+            doc.text(`Medida del Diseño: ${width} cm x ${height} cm`, margin, y);
         }
         
         y += 15;

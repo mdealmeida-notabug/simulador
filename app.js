@@ -110,18 +110,14 @@ document.addEventListener('DOMContentLoaded', () => {
         
         // Si no hay imagen cargada
         if (!currentLogo || currentLogo === "") {
-            if (dynamicSubtitle) dynamicSubtitle.style.display = 'none';
-            if (mainSubtitle) mainSubtitle.style.display = 'block';
             if (btnProceed) btnProceed.disabled = true;
             return;
         }
 
         // Si hay una imagen cargada
         if (btnProceed) btnProceed.disabled = false;
-        if (mainSubtitle) mainSubtitle.style.display = 'none';
         
         if (dynamicSubtitle) {
-            dynamicSubtitle.style.display = 'block';
             const materialLabel = document.querySelector('input[name="stampMaterial"]:checked').parentElement.textContent.trim().toLowerCase();
             const typeLabel = document.querySelector('input[name="stampType"]:checked').parentElement.textContent.trim().toLowerCase();
             const width = document.getElementById('logoCmValue').innerText;
@@ -353,6 +349,12 @@ document.addEventListener('DOMContentLoaded', () => {
             if (previewAreaMain) previewAreaMain.style.display = 'none';
             if (infoTextContainer) infoTextContainer.style.display = 'none';
             if (controlsContainerMain) controlsContainerMain.style.display = 'none';
+            
+            // Ocultar subtítulo principal y mostrar el dinámico final
+            const mainSub = document.getElementById('mainSubtitle');
+            const dynSub = document.getElementById('dynamicSubtitle');
+            if (mainSub) mainSub.style.display = 'none';
+            if (dynSub) dynSub.style.display = 'block';
 
             // Mostrar sección técnica
             btnProceedToTech.style.display = 'none';

@@ -776,9 +776,9 @@ input[type=range].vertical-slider {
     body { padding: 0; }
     .dj-console {
         width: 100vw;
-        height: 100vh;
-        gap: 5px;
-        padding: 5px;
+        height: 100%;
+        gap: 2px;
+        padding: 2px;
         border-radius: 0;
         box-shadow: none;
         border: none;
@@ -789,37 +789,46 @@ input[type=range].vertical-slider {
         flex: 1;
         min-width: 0;
         width: auto;
-        padding: 5px;
+        padding: 2px;
     }
     .mixer {
-        flex: 0 0 200px;
+        flex: 0 0 160px;
         min-width: 0;
         width: auto;
     }
-    .platter-container, .platter {
-        width: 150px !important;
-        height: 150px !important;
-        margin: 2px 0;
+    .waveform-view {
+        display: none; /* Hide wave on mobile to save vertical space */
     }
-    /* Buttons and text 50% larger */
+    .platter-container, .platter {
+        width: 90px !important;
+        height: 90px !important;
+        margin: 0 auto;
+    }
+    /* Buttons and text scaled down vertically */
     .cue-pad {
-        height: 50px;
-        font-size: 1.2rem;
+        height: 35px;
+        font-size: 1rem;
+        margin-top: 2px;
     }
     .btn-play {
-        width: 60px;
-        height: 60px;
-        font-size: 1rem;
+        width: 50px;
+        height: 50px;
+        font-size: 0.9rem;
+        margin-top: -10px;
     }
-    .bpm-display { font-size: 2rem; }
-    .deck-title { font-size: 1.5rem; }
-    .slider-label { font-size: 0.8rem; }
+    .bpm-display { font-size: 1.5rem; margin-bottom: 0; }
+    .deck-title { font-size: 1rem; margin-bottom: 0; }
+    .slider-label { font-size: 0.7rem; margin-bottom: 2px; }
     
     /* Shrinking inputs slightly to fit */
     input[type=range].vertical-slider {
-        height: 140px;
+        height: 100px;
         /* Touch action none is crucial for mobile sliders */
         touch-action: none;
     }
-    #crossfader-ctrl { touch-action: none; margin: 10px 0; width: 180px; }
+    #crossfader-ctrl { touch-action: none; margin: 4px 0; width: 140px; }
+    
+    .hot-cues { gap: 2px; margin-top: 5px; margin-bottom: 0px; }
+    .controls { padding-top: 5px; }
+    .pitch-container { right: 5px; top: auto; bottom: 80px; }
 }

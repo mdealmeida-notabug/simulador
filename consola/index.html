@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>DJ Console Premium PRO v8</title>
+    <meta name="description" content="Simulación estética de una consola de DJ profesional en gris oscuro con controles avanzados.">
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=Inter:wght@400;600&display=swap" rel="stylesheet">
+</head>
+<body>
+    <script src="https://cdn.jsdelivr.net/npm/webtorrent@latest/webtorrent.min.js"></script>
+    <script src="https://www.youtube.com/iframe_api"></script>
+
+    <!-- Rotate overlay for mobile -->
+    <div id="rotate-overlay">
+        <div class="rotate-icon">↻</div>
+        <h1>ROTA TU DISPOSITIVO</h1>
+        <p>Por favor ubicá tu teléfono de forma horizontal para manejar la mesa de mezclas cómodamente.</p>
+    </div>
+
+
+    <div class="dj-console" id="dj-console">
+        <!-- Left Deck -->
+        <div class="deck" id="deck-left">
+            <div class="search-section">
+                <div class="preview-square" id="preview-left"></div>
+                <div class="input-group">
+                    <input type="text" class="address-bar" id="address-left" placeholder="YouTube URL o búsqueda Torrent...">
+                    <button class="btn btn-search" id="search-btn-left">BUSCAR</button>
+                    <div class="download-progress" id="progress-container-left"><div class="progress-fill" id="progress-left"></div></div>
+                </div>
+            </div>
+
+            <!-- Playback Progress Bar -->
+            <div class="playback-bar-wrap">
+                <span class="pb-time" id="pb-elapsed-left">0:00</span>
+                <div class="playback-bar" id="playback-bar-left">
+                    <div class="playback-bar-fill" id="playback-fill-left"></div>
+                    <div class="playback-bar-head" id="playback-head-left"></div>
+                </div>
+                <span class="pb-time" id="pb-total-left">0:00</span>
+            </div>
+
+            <div class="waveform-view">
+                <div class="wave-line"></div>
+                <div class="wave-line" style="animation-delay: -2s; opacity: 0.1;"></div>
+            </div>
+
+            <div class="deck-header">
+                <div class="bpm-display" id="bpm-left">128.0</div>
+                <div class="deck-title">DECK A</div>
+            </div>
+            
+            <div class="platter-container">
+                <div class="platter" id="platter-left">
+                    <div class="platter-marker"></div>
+                    <div class="platter-center">
+                        <svg width="40" height="40" viewBox="0 0 100 100">
+                            <circle cx="50" cy="50" r="45" fill="none" stroke="#333" stroke-width="2" />
+                            <path d="M50 20 L50 35 M80 50 L65 50 M50 80 L50 65 M20 50 L35 50" stroke="var(--accent-color)" stroke-width="3" />
+                        </svg>
+                    </div>
+                </div>
+            </div>
+
+            <div class="hot-cues">
+                <div class="cue-pad" data-pad="0">1</div><div class="cue-pad" data-pad="1">2</div><div class="cue-pad" data-pad="2">3</div><div class="cue-pad" data-pad="3">4</div>
+                <div class="cue-pad" data-pad="4">5</div><div class="cue-pad" data-pad="5">6</div><div class="cue-pad" data-pad="6">7</div><div class="cue-pad" data-pad="7">8</div>
+            </div>
+
+
+            <div class="pitch-container">
+                <div class="slider-label">PITCH</div>
+                <input type="range" class="pitch-slider" id="pitch-left" min="0.5" max="2" step="0.01" value="1">
+            </div>
+
+            <div class="controls">
+                <div class="btn-round btn-cue" id="cue-left">CUE</div>
+                <div class="btn-round btn-play" id="play-left">PLAY</div>
+            </div>
+        </div>
+
+        <!-- Mixer Section -->
+        <div class="mixer">
+            <div class="audio-outputs">
+                <div class="slider-label">SALIDAS DE AUDIO</div>
+                <select id="select-output-left" class="address-bar" style="margin-bottom: 5px; font-size: 0.7rem;">
+                    <option value="">Deck A (Speakers)</option>
+                </select>
+                <select id="select-output-right" class="address-bar" style="font-size: 0.7rem;">
+                    <option value="">Deck B (Phones)</option>
+                </select>
+            </div>
+
+            <!-- PRO Mixer Layout: Vol A | VU A | VU B | Vol B -->
+            <div class="pro-mixer-row">
+                <div class="fader-group">
+                    <div class="slider-label">VOL A</div>
+                    <input type="range" class="vertical-slider" id="vol-left" min="0" max="100" value="100">
+                </div>
+                
+                <div class="vu-group">
+                    <div class="vu-meter" id="vu-left"></div>
+                    <div class="vu-meter" id="vu-right"></div>
+                </div>
+
+                <div class="fader-group">
+                    <div class="slider-label">VOL B</div>
+                    <input type="range" class="vertical-slider" id="vol-right" min="0" max="100" value="100">
+                </div>
+            </div>
+
+            <div class="knob-container">
+                <div class="knob-group">
+                    <div class="slider-label">HI</div>
+                    <div class="knob"></div>
+                </div>
+                <div class="knob-group">
+                    <div class="slider-label">MID</div>
+                    <div class="knob"></div>
+                </div>
+                <div class="knob-group">
+                    <div class="slider-label">LOW</div>
+                    <div class="knob"></div>
+                </div>
+            </div>
+
+            <div class="crossfader">
+                <div class="slider-label">CROSSFADER</div>
+                <input type="range" id="crossfader-ctrl" min="0" max="100" value="50" style="width: 150px;">
+                <div class="auto-fade-controls">
+                    <button class="btn-fade tooltip" id="fade-slow" data-tooltip="Fade Lento (8s)">►</button>
+                    <button class="btn-fade tooltip" id="fade-fast" data-tooltip="Fade Rápido (2s)">⏩</button>
+                    <button class="btn-fade tooltip" id="fade-cut" data-tooltip="Corte (0.5s)">⚡</button>
+                    <button class="btn-fade" disabled></button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Right Deck -->
+        <div class="deck" id="deck-right">
+            <div class="search-section">
+                <div class="preview-square" id="preview-right"></div>
+                <div class="input-group">
+                    <input type="text" class="address-bar" id="address-right" placeholder="YouTube URL o búsqueda Torrent...">
+                    <button class="btn btn-search" id="search-btn-right">BUSCAR</button>
+                    <div class="download-progress" id="progress-container-right"><div class="progress-fill" id="progress-right"></div></div>
+                </div>
+            </div>
+
+            <!-- Playback Progress Bar -->
+            <div class="playback-bar-wrap">
+                <span class="pb-time" id="pb-elapsed-right">0:00</span>
+                <div class="playback-bar" id="playback-bar-right">
+                    <div class="playback-bar-fill" id="playback-fill-right"></div>
+                    <div class="playback-bar-head" id="playback-head-right"></div>
+                </div>
+                <span class="pb-time" id="pb-total-right">0:00</span>
+            </div>
+
+            <div class="waveform-view">
+                <div class="wave-line"></div>
+                <div class="wave-line" style="animation-delay: -1s; opacity: 0.1;"></div>
+            </div>
+
+
+            <div class="deck-header">
+                <div class="deck-title">DECK B</div>
+                <div class="bpm-display" id="bpm-right">124.5</div>
+            </div>
+            
+            <div class="platter-container">
+                <div class="platter" id="platter-right">
+                    <div class="platter-marker"></div>
+                    <div class="platter-center">
+                        <svg width="40" height="40" viewBox="0 0 100 100">
+                            <circle cx="50" cy="50" r="45" fill="none" stroke="#333" stroke-width="2" />
+                            <path d="M50 20 L50 35 M80 50 L65 50 M50 80 L50 65 M20 50 L35 50" stroke="var(--accent-color)" stroke-width="3" />
+                        </svg>
+                    </div>
+                </div>
+            </div>
+
+            <div class="hot-cues">
+                <div class="cue-pad" data-pad="0">1</div><div class="cue-pad" data-pad="1">2</div><div class="cue-pad" data-pad="2">3</div><div class="cue-pad" data-pad="3">4</div>
+                <div class="cue-pad" data-pad="4">5</div><div class="cue-pad" data-pad="5">6</div><div class="cue-pad" data-pad="6">7</div><div class="cue-pad" data-pad="7">8</div>
+            </div>
+
+
+            <div class="pitch-container" style="left: auto; right: 20px;">
+                <div class="slider-label">PITCH</div>
+                <input type="range" class="pitch-slider" id="pitch-right" min="0.5" max="2" step="0.01" value="1">
+            </div>
+
+            <div class="controls">
+                <div class="btn-round btn-cue" id="cue-right">CUE</div>
+                <div class="btn-round btn-play" id="play-right">PLAY</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Cajón de Pistas (Library) -->
+    <div class="library-container">
+        <h3 class="slider-label" style="text-align: center; margin-bottom: 10px; font-size: 1.2rem;">CAJÓN DE PISTAS (LIBRERÍA)</h3>
+        <div id="track-library" class="library-list">
+            <p style="color: #444; text-align: center; padding: 20px;">No hay pistas en la librería. Usa la búsqueda para descargar temas.</p>
+        </div>
+    </div>
+
+    <!-- Modals -->
+    <div id="search-modal" class="modal">
+        <div class="modal-content">
+            <span class="close-modal">&times;</span>
+            <h2 id="modal-title" style="margin-bottom: 20px; font-family: 'Orbitron', sans-serif;">RESULTADOS DE BÚSQUEDA</h2>
+            <div id="search-results-list"></div>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>

@@ -233,9 +233,12 @@ document.addEventListener('DOMContentLoaded', () => {
         const pbBar    = document.getElementById(`playback-bar-${deckId}`);
         const pbElapsed = document.getElementById(`pb-elapsed-${deckId}`);
         const pbTotal   = document.getElementById(`pb-total-${deckId}`);
-        const STORAGE_KEY_URL   = `dj_url_${deckId}`;
-        const STORAGE_KEY_THUMB = `dj_thumb_${deckId}`;
+        const STORAGE_KEY_SLOTS = `dj_slots_${deckId}`;
+        const STORAGE_KEY_ACTIVE_SLOT = `dj_active_slot_${deckId}`;
         const STORAGE_KEY_MODE  = `dj_mode_${deckId}`;
+        
+        let activeSlotIndex = parseInt(localStorage.getItem(STORAGE_KEY_ACTIVE_SLOT)) || 0;
+        let deckSlots = JSON.parse(localStorage.getItem(STORAGE_KEY_SLOTS)) || ["", "", "", ""];
         
         let isPlaying = false;
         let currentMode = 'none';
@@ -254,6 +257,18 @@ document.addEventListener('DOMContentLoaded', () => {
                 players[deckId].setVolume(combined * 100);
             }
         }
+
+        // Initialize slots UI
+        deckSlots.forEach((url, i) => {
+            const input = document.getElementById(`slot-${deckId}-${i}`);
+            if (input) {
+                input.value = url;
+                input.addEventListener('input', () => {
+                    deckSlots[i] = input.value;
+                    localStorage.setItem(STORAGE_KEY_SLOTS, JSON.stringify(deckSlots));
+                });
+            }
+        });
 
         // Vol fader
         volSlider.addEventListener('input', () => {
@@ -412,28 +427,41 @@ document.addEventListener('DOMContentLoaded', () => {
         });
 
         // Loader functions
-        function loadYouTube(url) {
+        function loadYouTube(url, slotIndex = activeSlotIndex) {
             const videoId = extractVideoId(url);
             if (!videoId) return;
             const thumb = `url(https://img.youtube.com/vi/${videoId}/hqdefault.jpg)`;
             document.getElementById(`preview-${deckId}`).style.backgroundImage = thumb;
-            localStorage.setItem(STORAGE_KEY_URL, url);
-            localStorage.setItem(STORAGE_KEY_THUMB, thumb);
+            
+            // Update active slot UI
+            document.querySelectorAll(`#deck-${deckId} .yt-slot`).forEach(s => s.classList.remove('active'));
+            const activeSlotEl = document.querySelector(`#deck-${deckId} .yt-slot[data-slot="${slotIndex}"]`);
+            if (activeSlotEl) activeSlotEl.classList.add('active');
+            
+            activeSlotIndex = slotIndex;
+            localStorage.setItem(STORAGE_KEY_ACTIVE_SLOT, activeSlotIndex);
             localStorage.setItem(STORAGE_KEY_MODE, 'youtube');
-            document.getElementById(`address-${deckId}`).value = url;
+            
             currentMode = 'youtube';
             const initPlayer = () => {
                 getOrCreateYTPlayer(deckId, (player) => {
-                    // cueVideoById loads without playing; user presses PLAY manually
                     player.cueVideoById(videoId);
                     player.setVolume(volSlider.value);
-                    // Signal ready to play
                     playBtn.classList.add('ready');
                 });
             };
             if (ytApiReady) initPlayer();
             else window.onYouTubeIframeAPIReady = () => { ytApiReady = true; initPlayer(); };
         }
+
+        // Slot selection buttons
+        document.querySelectorAll(`.btn-slot-sel[data-side="${deckId}"]`).forEach(btn => {
+            btn.addEventListener('click', () => {
+                const idx = parseInt(btn.dataset.index);
+                const url = deckSlots[idx];
+                loadYouTube(url, idx);
+            });
+        });
 
         // loadTorrent inside deck is deprecated in favor of global background download
 
@@ -444,28 +472,10 @@ document.addEventListener('DOMContentLoaded', () => {
             document.getElementById(`preview-${deckId}`).style.backgroundImage = 'url(https://via.placeholder.com/100/333/fff?text=LOADED)';
         }
 
-        // ─── RESTORE FROM LOCALSTORAGE ────────────────────────────
-        const savedUrl   = localStorage.getItem(STORAGE_KEY_URL);
-        const savedThumb = localStorage.getItem(STORAGE_KEY_THUMB);
-        if (savedUrl && savedThumb) {
-            document.getElementById(`address-${deckId}`).value = savedUrl;
-            document.getElementById(`preview-${deckId}`).style.backgroundImage = savedThumb;
+        // Restore active slot on start
+        if (deckSlots[activeSlotIndex]) {
+            loadYouTube(deckSlots[activeSlotIndex], activeSlotIndex);
         }
-
-        // Search logic
-        const addressBar = document.getElementById(`address-${deckId}`);
-        const searchBtn = document.getElementById(`search-btn-${deckId}`);
-        searchBtn.addEventListener('click', () => {
-            const val = addressBar.value;
-            if (val.includes('youtube.com') || val.includes('youtu.be')) {
-                loadYouTube(val);
-            } else if (val.includes('magnet:?') || val.includes('.torrent')) {
-                addressBar.value = ''; // Clean bar for other uses
-                downloadTorrent(val, "Descarga Directa");
-            } else {
-                openSearch(val, deckId);
-            }
-        });
 
         // ─── HOT CUE PADS ────────────────────────────────────────────
         const cuePads = document.querySelectorAll(`#deck-${deckId} .cue-pad`);
@@ -474,25 +484,39 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (currentMode === 'none') return; // nothing loaded
                 const index = parseInt(pad.dataset.pad);
                 if (hotCues[index] === null) {
-                    // FIRST CLICK: record current position
-                    hotCues[index] = getCurrentPosition();
+                    // FIRST CLICK: record current position + slot
+                    hotCues[index] = {
+                        slot: activeSlotIndex,
+                        time: getCurrentPosition()
+                    };
                     pad.style.background = 'var(--accent-color)';
                     pad.style.color = '#fff';
                     pad.style.borderColor = 'var(--accent-color)';
                     pad.style.boxShadow = '0 0 12px var(--accent-color)';
                 } else {
                     // SECOND CLICK: jump to saved position
-                    const cueTime = hotCues[index];
-                    if (isPlaying) {
-                        startPlayback(cueTime);
+                    const cue = hotCues[index];
+                    
+                    const jumpToCue = () => {
+                        if (isPlaying) {
+                            startPlayback(cue.time);
+                        } else {
+                            isPlaying = true;
+                            platter.classList.add('spinning');
+                            playBtn.classList.add('active');
+                            playBtn.textContent = 'STOP';
+                            updateVU();
+                            startPlayback(cue.time);
+                        }
+                    };
+
+                    if (cue.slot !== activeSlotIndex) {
+                        // Switch slot first
+                        loadYouTube(deckSlots[cue.slot], cue.slot);
+                        // Give it a moment to load
+                        setTimeout(jumpToCue, 500);
                     } else {
-                        // Start playing from cue point
-                        isPlaying = true;
-                        platter.classList.add('spinning');
-                        playBtn.classList.add('active');
-                        playBtn.textContent = 'STOP';
-                        updateVU();
-                        startPlayback(cueTime);
+                        jumpToCue();
                     }
                     // Flash the pad
                     pad.style.filter = 'brightness(1.5)';
